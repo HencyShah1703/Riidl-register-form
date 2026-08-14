@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
-import Navbar from './components/Navbar/index.jsx';
-import MainPg from './pages/MainPg/index.jsx';
-import NewUser from './pages/NewUser/index.jsx';
-import RegisteredUser from './pages/RegisteredUser/index.jsx';
+import Navbar from './pages/Navbar/index.jsx';
+import Register from './pages/Register/index.jsx';
 import Records from './pages/Records/index.jsx';
-import Analytics from './pages/Analytics/index.jsx';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('main'); // 'main', 'new-user', 'registered-user', 'records', 'analytics'
@@ -38,45 +35,26 @@ function App() {
     }
   };
 
-  const handleSelectFlow = (flow) => {
-    if (flow === 'new') {
-      handleSetPage('new-user');
-    }
-  };
-
-  const handleUserFound = (user) => {
-    setPrefilledUser(user);
-    handleSetPage('registered-user');
-  };
-
-  const handleBackToMain = () => {
-    setPrefilledUser(null);
-    handleSetPage('main');
-  };
-
   return (
     <div className="app-container">
       <Navbar currentPage={currentPage} setCurrentPage={handleSetPage} />
       
       <main className="page-content">
-        {currentPage === 'main' && (
-          <MainPg onSelectFlow={handleSelectFlow} onUserFound={handleUserFound} />
+        {['main', 'new-user', 'registered-user'].includes(currentPage) && (
+          <Register 
+            currentPage={currentPage} 
+            setCurrentPage={handleSetPage} 
+            prefilledUser={prefilledUser}
+            setPrefilledUser={setPrefilledUser}
+          />
         )}
         
-        {currentPage === 'new-user' && (
-          <NewUser onBack={handleBackToMain} />
-        )}
-        
-        {currentPage === 'registered-user' && (
-          <RegisteredUser onBack={handleBackToMain} prefilledUser={prefilledUser} />
-        )}
-
         {currentPage === 'records' && (
-          <Records />
+          <Records subPage="log" />
         )}
 
         {currentPage === 'analytics' && (
-          <Analytics />
+          <Records subPage="analytics" />
         )}
       </main>
     </div>
