@@ -1,82 +1,118 @@
 import React from 'react';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
 
 const COLORS = ['#A20202', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899'];
 
+const STANDARD_PURPOSES = [
+  'To Meet Someone',
+  'Internship',
+  'For Program/Event',
+  'For Training / Workshop / Research',
+  'For Facility Tour',
+  'For Research Meetup',
+  'For using the instrument'
+];
+
+const cleanDisplayName = (name) => {
+  if (!name) return '';
+  let clean = name;
+  if (name.toLowerCase().startsWith('for ')) {
+    clean = name.substring(4).trim();
+  }
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+};
+
 export default function PurposeChart({ data }) {
-  const hasData = data && data.length > 0 && data.some(d => d.value > 0);
+  const processedData = React.useMemo(() => {
+    if (!data || data.length === 0) return [];
+    const standardSet = new Set(STANDARD_PURPOSES.map(p => p.toLowerCase().trim()));
+    let otherValue = 0;
+    const result = [];
+    
+    data.forEach(item => {
+      const name = item.name || '';
+      const cleanName = name.toLowerCase().trim();
+      if (cleanName && standardSet.has(cleanName)) {
+        result.push({
+          ...item,
+          name: cleanDisplayName(item.name)
+        });
+      } else if (cleanName) {
+        otherValue += item.value;
+      }
+    });
+    
+    // Always include "Other" category as requested
+    result.push({ name: 'Other', value: otherValue });
+    
+    return result;
+  }, [data]);
 
-  // Custom label showing count and percentage
-  const renderCustomLabel = ({ cx, cy, midAngle, outerRadius, percent, value }) => {
-    const RADIAN = Math.PI / 180;
-    const radius = outerRadius + 15;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  const totalVal = React.useMemo(() => {
+    return processedData.reduce((acc, curr) => acc + curr.value, 0);
+  }, [processedData]);
 
+  const renderCustomLabel = ({ x, y, cx, value }) => {
+    const percent = totalVal > 0 ? ((value / totalVal) * 100).toFixed(1) : 0;
     return (
       <text
         x={x}
         y={y}
-        fill="var(--text-secondary)"
+        fill="var(--text-primary)"
         textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
-        style={{ fontSize: '10px', fontWeight: 600 }}
+        style={{ fontSize: '8px', fontWeight: 700 }}
       >
-        {`${value} (${(percent * 100).toFixed(0)}%)`}
+        {`${percent}% (${value})`}
       </text>
     );
   };
 
+  const hasData = processedData.length > 0 && processedData.some(d => d.value > 0);
+
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', minHeight: '340px', display: 'flex', flexDirection: 'column', flex: '1 1 calc(50% - 0.75rem)', minWidth: '380px' }}>
-      <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+    <div style={{ background: '#ffffff', border: '1px solid #000000', borderRadius: '8px', padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', flex: '1', width: '100%', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
         New Visitors by Purpose
       </h4>
       
       {!hasData ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          No demographics data available for this period.
+        <div style={{ minHeight: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+          No purpose data available.
         </div>
       ) : (
-        <div style={{ flex: 1, width: '100%', height: '240px' }}>
+        <div style={{ width: '100%', height: '200px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={data}
-                cx="35%"
+                data={processedData}
+                cx="32%"
                 cy="50%"
-                innerRadius={50}
-                outerRadius={70}
-                paddingAngle={2}
+                innerRadius={52}
+                outerRadius={80}
+                paddingAngle={3}
                 dataKey="value"
                 label={renderCustomLabel}
-                labelLine={false}
+                labelLine={true}
+                activeShape={false}
+                style={{ pointerEvents: 'none' }}
               >
-                {data.map((entry, index) => (
+                {processedData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                  fontSize: 12
-                }}
-              />
               <Legend 
                 layout="vertical"
                 align="right" 
                 verticalAlign="middle"
                 iconType="circle"
-                iconSize={8}
+                iconSize={7}
                 wrapperStyle={{ 
-                  fontSize: '11px', 
+                  fontSize: '10px', 
                   right: 0,
-                  maxWidth: '50%',
+                  maxWidth: '55%',
                   overflowY: 'auto',
-                  maxHeight: '200px'
+                  maxHeight: '180px'
                 }}
               />
             </PieChart>

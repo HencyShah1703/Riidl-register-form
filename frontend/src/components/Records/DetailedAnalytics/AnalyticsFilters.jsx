@@ -1,4 +1,5 @@
 import React from 'react';
+import ExportMenu from './ExportMenu.jsx';
 
 const LOCATIONS = [
   { value: '', label: 'All Locations' },
@@ -14,31 +15,35 @@ export default function AnalyticsFilters({
   customTo,
   setCustomTo,
   location,
-  setLocation
+  setLocation,
+  onBack,
+  dashboardData,
+  periodLabel,
+  locationLabel
 }) {
   return (
-    <div className="dashboard-filters-panel" style={{ marginBottom: '1.5rem', background: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.25rem' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+    <div className="dashboard-filters-panel" style={{ marginBottom: '1rem', background: '#f8fafc', border: '1px solid #000000', borderRadius: '8px', padding: '0.4rem 0.75rem', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', width: '100%' }}>
         
-        {/* Date period filters */}
-        <div className="filter-item" style={{ flex: '1 1 auto', minWidth: '240px' }}>
-          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Analysis Period</label>
-          <div style={{ display: 'flex', gap: '0.4rem', background: '#e2e8f0', padding: '0.25rem', borderRadius: '8px', width: 'fit-content' }}>
+        {/* Column 1: Analysis Period */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Analysis Period</span>
+          <div style={{ display: 'flex', gap: '0.2rem', background: '#e2e8f0', padding: '2px', borderRadius: '6px', width: 'fit-content' }}>
             {['week', 'month', 'year', 'custom'].map((p) => (
               <button
                 key={p}
                 type="button"
                 onClick={() => setPeriod(p)}
                 style={{
-                  padding: '0.45rem 1rem',
-                  fontSize: '0.85rem',
+                  padding: '0.2rem 0.55rem',
+                  fontSize: '0.73rem',
                   fontWeight: 600,
-                  borderRadius: '6px',
+                  borderRadius: '4px',
                   border: 'none',
                   cursor: 'pointer',
                   background: period === p ? 'var(--card-bg)' : 'transparent',
                   color: period === p ? 'var(--primary)' : 'var(--text-secondary)',
-                  boxShadow: period === p ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none',
+                  boxShadow: period === p ? '0 1px 2px rgba(0, 0, 0, 0.08)' : 'none',
                   transition: 'all 0.15s ease'
                 }}
               >
@@ -48,23 +53,62 @@ export default function AnalyticsFilters({
           </div>
         </div>
 
-        {/* Location Dropdown */}
-        <div className="filter-item" style={{ width: '220px' }}>
-          <label htmlFor="locationFilter" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Location Filter</label>
-          <div style={{ position: 'relative', width: '100%' }}>
+        {/* Date range pickers shown inline if period is custom */}
+        {period === 'custom' && (
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <div className="filter-item" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <label htmlFor="customFrom" style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-secondary)' }}>From:</label>
+              <input
+                id="customFrom"
+                type="date"
+                value={customFrom}
+                onChange={(e) => setCustomFrom(e.target.value)}
+                style={{
+                  padding: '0.15rem 0.4rem',
+                  fontSize: '0.75rem',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-primary)'
+                }}
+              />
+            </div>
+            <div className="filter-item" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <label htmlFor="customTo" style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-secondary)' }}>To:</label>
+              <input
+                id="customTo"
+                type="date"
+                value={customTo}
+                onChange={(e) => setCustomTo(e.target.value)}
+                style={{
+                  padding: '0.15rem 0.4rem',
+                  fontSize: '0.75rem',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-primary)'
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Column 2: Location Filter */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+          <label htmlFor="locationFilter" style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Location Filter</label>
+          <div style={{ position: 'relative', width: '130px' }}>
             <select
               id="locationFilter"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               style={{
-                padding: '0.55rem 2rem 0.55rem 0.85rem',
-                fontSize: '0.88rem',
+                padding: '0.2rem 1.6rem 0.2rem 0.5rem',
+                fontSize: '0.75rem',
                 width: '100%',
-                borderRadius: '8px',
+                height: '24px',
+                borderRadius: '4px',
                 border: '1px solid var(--border-color)',
                 background: 'var(--card-bg)',
                 color: 'var(--text-primary)',
-                fontWeight: 500,
+                fontWeight: 600,
                 WebkitAppearance: 'none',
                 MozAppearance: 'none',
                 appearance: 'none',
@@ -79,7 +123,7 @@ export default function AnalyticsFilters({
             </select>
             <div style={{
               position: 'absolute',
-              right: '0.85rem',
+              right: '0.4rem',
               top: '50%',
               transform: 'translateY(-50%)',
               pointerEvents: 'none',
@@ -87,62 +131,51 @@ export default function AnalyticsFilters({
               alignItems: 'center',
               color: 'var(--text-secondary)'
             }}>
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Custom range date pickers */}
-      {period === 'custom' && (
-        <div 
-          className="date-range-row" 
-          style={{ 
-            display: 'flex', 
-            gap: '1rem', 
-            marginTop: '1.25rem', 
-            paddingTop: '1rem', 
-            borderTop: '1px dashed var(--border-color)' 
-          }}
-        >
-          <div className="filter-item" style={{ flex: '1 1 200px' }}>
-            <label htmlFor="customFrom" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>From Date</label>
-            <input
-              id="customFrom"
-              type="date"
-              value={customFrom}
-              onChange={(e) => setCustomFrom(e.target.value)}
-              style={{
-                padding: '0.5rem 0.75rem',
-                fontSize: '0.88rem',
-                width: '100%',
-                borderRadius: '8px',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-primary)'
-              }}
-            />
-          </div>
-          <div className="filter-item" style={{ flex: '1 1 200px' }}>
-            <label htmlFor="customTo" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>To Date</label>
-            <input
-              id="customTo"
-              type="date"
-              value={customTo}
-              onChange={(e) => setCustomTo(e.target.value)}
-              style={{
-                padding: '0.5rem 0.75rem',
-                fontSize: '0.88rem',
-                width: '100%',
-                borderRadius: '8px',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-primary)'
-              }}
-            />
-          </div>
+        {/* Column 3: Actions (Pushed to the right) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', alignItems: 'flex-end', marginLeft: 'auto' }}>
+          {/* Row 1 button: Back to Logs */}
+          <button 
+            onClick={onBack}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              height: '20px',
+              padding: '0 0.45rem',
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              color: 'var(--primary)',
+              background: '#ffffff',
+              border: '1px solid var(--primary)',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              letterSpacing: '0.05em',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="var(--primary)" strokeWidth="2.5" style={{ pointerEvents: 'none' }}>
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Back to Logs
+          </button>
+
+          {/* Row 2 button: Export / Save */}
+          <ExportMenu 
+            dashboardData={dashboardData} 
+            periodLabel={periodLabel} 
+            locationLabel={locationLabel} 
+          />
         </div>
-      )}
+
+      </div>
     </div>
   );
 }

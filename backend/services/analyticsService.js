@@ -381,18 +381,50 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
     'K J Somaiya College of Physiotherapy'
   ]);
 
+  const STANDARD_PURPOSES = [
+    'To Meet Someone',
+    'Internship',
+    'For Program/Event',
+    'For Training / Workshop / Research',
+    'For Facility Tour',
+    'For Research Meetup',
+    'For using the instrument'
+  ];
+
+  const STANDARD_ROLES = [
+    'Student',
+    'Startup',
+    'Faculty',
+    'Somaiya Management',
+    'VC & Angel investors'
+  ];
+
   const purposeCounts = {};
   const collegeCounts = {};
   const visitorTypeCounts = {};
 
   newUsersInPeriod.forEach(user => {
-    const p = user.purpose || 'Other';
+    let p = (user.purpose && user.purpose.trim()) || 'Other';
+    const isStdPurpose = STANDARD_PURPOSES.some(sp => sp.toLowerCase() === p.toLowerCase());
+    if (!isStdPurpose) {
+      p = 'Other';
+    } else {
+      const matched = STANDARD_PURPOSES.find(sp => sp.toLowerCase() === p.toLowerCase());
+      p = matched || p;
+    }
     purposeCounts[p] = (purposeCounts[p] || 0) + 1;
 
     const rawCollege = (user.college && user.college.trim()) || 'Other';
     collegeCounts[rawCollege] = (collegeCounts[rawCollege] || 0) + 1;
 
-    const i = user.iAm || 'Other';
+    let i = (user.iAm && user.iAm.trim()) || 'Other';
+    const isStdRole = STANDARD_ROLES.some(sr => sr.toLowerCase() === i.toLowerCase());
+    if (!isStdRole) {
+      i = 'Other';
+    } else {
+      const matched = STANDARD_ROLES.find(sr => sr.toLowerCase() === i.toLowerCase());
+      i = matched || i;
+    }
     visitorTypeCounts[i] = (visitorTypeCounts[i] || 0) + 1;
   });
 

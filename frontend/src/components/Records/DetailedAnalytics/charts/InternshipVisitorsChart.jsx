@@ -5,58 +5,55 @@ export default function InternshipVisitorsChart({ stats, chartData }) {
   const hasData = chartData && chartData.length > 0;
 
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', flex: '1 1 100%', width: '100%' }}>
-      <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+    <div style={{ background: '#ffffff', border: '1px solid #000000', borderRadius: '8px', padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', flex: '1 1 100%', width: '100%', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
         Internship Visitors & Mentors
       </h4>
 
       {/* Mini KPI Cards row */}
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem' }}>
-        <div style={{ flex: 1, padding: '0.75rem', background: 'var(--success-bg)', borderRadius: '12px', border: '1px solid #fecaca', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Internship Visits</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--primary)', marginTop: '0.25rem' }}>{total}</div>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+        <div style={{ flex: 1, padding: '0.4rem 0.5rem', background: '#fef2f2', borderRadius: '6px', border: '1px solid #fecaca', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Total Visits</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary)' }}>{total}</div>
         </div>
-        <div style={{ flex: 1, padding: '0.75rem', background: '#eff6ff', borderRadius: '12px', border: '1px solid #bfdbfe', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Unique Interns</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#1d4ed8', marginTop: '0.25rem' }}>{unique}</div>
+        <div style={{ flex: 1, padding: '0.4rem 0.5rem', background: '#eff6ff', borderRadius: '6px', border: '1px solid #bfdbfe', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Unique Interns</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1d4ed8' }}>{unique}</div>
         </div>
-        <div style={{ flex: 1, padding: '0.75rem', background: '#ecfdf5', borderRadius: '12px', border: '1px solid #a7f3d0', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Returning Visits</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#047857', marginTop: '0.25rem' }}>{returning}</div>
+        <div style={{ flex: 1, padding: '0.4rem 0.5rem', background: '#ecfdf5', borderRadius: '6px', border: '1px solid #a7f3d0', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Returning</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#047857' }}>{returning}</div>
         </div>
       </div>
 
       {!hasData ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          No internship check-in details available for this period.
+        <div style={{ minHeight: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+          No internship details available for this period.
         </div>
       ) : (
-        <div style={{ flex: 1, width: '100%' }}>
-          <div className="table-responsive" style={{ overflowX: 'auto' }}>
-            <table className="records-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Mentor Name</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem 1rem' }}>Visits</th>
+        <div style={{ width: '100%', maxHeight: '140px', overflowY: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #e2e8f0', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                <th style={{ padding: '0.35rem 0.5rem' }}>Mentor / Organization</th>
+                <th style={{ padding: '0.35rem 0.5rem', textAlign: 'right' }}>Visits</th>
+              </tr>
+            </thead>
+            <tbody>
+              {chartData.map((row, idx) => (
+                <tr key={idx} style={{ borderBottom: '1px solid #f8fafc' }}>
+                  <td style={{ padding: '0.35rem 0.5rem', color: 'var(--text-primary)', fontWeight: 500 }}>
+                    {row.name}
+                  </td>
+                  <td style={{ padding: '0.35rem 0.5rem', textAlign: 'right', fontWeight: 700, color: 'var(--primary)' }}>
+                    {row.value}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {chartData.map((row, idx) => (
-                  <tr key={idx}>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'left', color: 'var(--text-primary)' }}>
-                      {row.name}
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right', fontWeight: 600 }}>
-                      {row.value}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
   );
 }
-

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LabelList } from 'recharts';
 
 export default function NewUsersTrend({ data }) {
   const [viewType, setViewType] = useState('monthly'); // 'monthly' or 'yearly'
@@ -51,24 +51,24 @@ export default function NewUsersTrend({ data }) {
   const hasData = chartData && chartData.length > 0 && chartData.some(d => d.count > 0);
 
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', minHeight: '360px', display: 'flex', flexDirection: 'column', flex: '1 1 500px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+    <div style={{ background: '#ffffff', border: '1px solid #000000', borderRadius: '8px', padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', flex: '1 1 100%', width: '100%', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
           New Visitor Registrations Over Time
         </h4>
-        <div style={{ display: 'flex', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '2px', background: '#f8fafc' }}>
+        <div style={{ display: 'flex', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '1px', background: '#f8fafc' }}>
           <button
             onClick={() => setViewType('monthly')}
             style={{
-              padding: '0.25rem 0.75rem',
-              fontSize: '0.8rem',
+              padding: '0.15rem 0.5rem',
+              fontSize: '0.72rem',
               fontWeight: 600,
-              borderRadius: '6px',
+              borderRadius: '3px',
               border: 'none',
               cursor: 'pointer',
               background: viewType === 'monthly' ? 'var(--primary)' : 'transparent',
               color: viewType === 'monthly' ? '#ffffff' : 'var(--text-secondary)',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.15s ease'
             }}
           >
             Monthly
@@ -76,15 +76,15 @@ export default function NewUsersTrend({ data }) {
           <button
             onClick={() => setViewType('yearly')}
             style={{
-              padding: '0.25rem 0.75rem',
-              fontSize: '0.8rem',
+              padding: '0.15rem 0.5rem',
+              fontSize: '0.72rem',
               fontWeight: 600,
-              borderRadius: '6px',
+              borderRadius: '3px',
               border: 'none',
               cursor: 'pointer',
               background: viewType === 'yearly' ? 'var(--primary)' : 'transparent',
               color: viewType === 'yearly' ? '#ffffff' : 'var(--text-secondary)',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.15s ease'
             }}
           >
             Yearly
@@ -93,48 +93,41 @@ export default function NewUsersTrend({ data }) {
       </div>
       
       {!hasData ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+        <div style={{ minHeight: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
           No new registrations recorded in the selected period.
         </div>
       ) : (
-        <div style={{ flex: 1, width: '100%', height: '300px' }}>
+        <div style={{ width: '100%', height: '200px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}
-              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              margin={{ top: 15, right: 15, left: -30, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
               <XAxis 
                 dataKey="date" 
                 tickLine={false} 
                 axisLine={false}
-                tick={{ fill: 'var(--text-secondary)', fontSize: 11 }}
+                tick={{ fill: 'var(--text-secondary)', fontSize: 9 }}
               />
               <YAxis 
                 allowDecimals={false} 
                 tickLine={false} 
                 axisLine={false}
-                tick={{ fill: 'var(--text-secondary)', fontSize: 11 }}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }}
-                labelStyle={{ fontWeight: 'bold', color: 'var(--text-primary)', fontSize: 12 }}
-                itemStyle={{ color: 'var(--primary)', fontSize: 12 }}
+                tick={{ fill: 'var(--text-secondary)', fontSize: 9 }}
               />
               <Line
                 type="monotone"
                 dataKey="count"
                 name="New Visitors"
                 stroke="var(--primary)"
-                strokeWidth={3}
-                activeDot={{ r: 6, stroke: '#ffffff', strokeWidth: 2 }}
-                dot={{ r: 3, stroke: 'var(--primary)', strokeWidth: 1, fill: '#ffffff' }}
-              />
+                strokeWidth={2}
+                activeDot={false}
+                dot={{ r: 2.5, stroke: 'var(--primary)', strokeWidth: 1, fill: '#ffffff' }}
+                style={{ pointerEvents: 'none' }}
+              >
+                <LabelList dataKey="count" position="top" style={{ fill: 'var(--text-secondary)', fontSize: 9, fontWeight: 700 }} />
+              </Line>
             </LineChart>
           </ResponsiveContainer>
         </div>

@@ -3,7 +3,6 @@ import AnalyticsHeader from './AnalyticsHeader.jsx';
 import AnalyticsFilters from './AnalyticsFilters.jsx';
 import AnalyticsKPICards from './AnalyticsKPICards.jsx';
 import AnalyticsChartsSection from './charts/index.jsx';
-import SummaryTable from './SummaryTable.jsx';
 import { fetchDashboardData } from '../../../services/analyticsApi.js';
 import { getPeriodDateRange } from '../../../utils/analyticsDates.js';
 
@@ -80,30 +79,8 @@ export default function AnalyticsComponent() {
   };
 
   return (
-    <div className="page-wrapper" style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '1rem 0' }}>
+    <div className="page-wrapper" style={{ width: '100%', maxWidth: '1350px', margin: '0 auto', padding: '0px 1rem 0.75rem 1rem' }}>
       
-      {/* Top Header Row with Back button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '1rem', width: '100%' }}>
-        <button 
-          onClick={handleGoBack}
-          className="btn-secondary back-btn"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.88rem' }}
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 19 5 12 12 5" />
-          </svg>
-          Back to Records
-        </button>
-      </div>
-
-      <AnalyticsHeader 
-        periodLabel={getPeriodLabel()} 
-        locationLabel={getLocationLabel()} 
-        onRefresh={loadDashboard}
-        isRefreshing={isLoadingData}
-        dashboardData={dashboardData}
-      />
 
       <AnalyticsFilters 
         period={period}
@@ -114,10 +91,14 @@ export default function AnalyticsComponent() {
         setCustomTo={setCustomTo}
         location={location}
         setLocation={setLocation}
+        onBack={handleGoBack}
+        dashboardData={dashboardData}
+        periodLabel={getPeriodLabel()}
+        locationLabel={getLocationLabel()}
       />
 
       {dataError && (
-        <div className="error-alert" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="error-alert" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{dataError}</span>
           <button 
             type="button" 
@@ -130,19 +111,17 @@ export default function AnalyticsComponent() {
         </div>
       )}
 
-
       {!isLoadingData && dashboardData && (
-        <div id="analytics-report-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem 0' }}>
+        <div id="analytics-report-container" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', padding: '0.5rem 0' }}>
           <AnalyticsKPICards overview={dashboardData.overview} />
 
-           <AnalyticsChartsSection dashboardData={dashboardData} />
+          <AnalyticsChartsSection dashboardData={dashboardData} />
 
-          <SummaryTable summary={dashboardData.summary} />
         </div>
       )}
 
       {period === 'custom' && (!customFrom || !customTo) && !isLoadingData && (
-        <div className="empty-records-card glass-panel" style={{ minHeight: '300px' }}>
+        <div className="empty-records-card glass-panel" style={{ minHeight: '300px', border: '1px solid #000000', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
           <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
             <line x1="16" y1="2" x2="16" y2="6" />

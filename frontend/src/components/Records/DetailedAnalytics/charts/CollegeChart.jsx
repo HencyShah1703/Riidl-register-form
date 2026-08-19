@@ -1,59 +1,72 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LabelList } from 'recharts';
 
 export default function CollegeChart({ data }) {
-  const allColleges = data || [];
-  const hasData = allColleges.length > 0 && allColleges.some(d => d.value > 0);
-  const chartHeight = Math.max(240, allColleges.length * 35);
+  // Filter ONLY Somaiya / SVU related institutes data
+  const isSomaiyaInstitute = (name) => {
+    if (!name) return false;
+    const n = name.toLowerCase().trim();
+    if (n === 'other' || n === 'none') return false;
+    return (
+      n.includes('somaiya') ||
+      n.includes('svu') ||
+      n.includes('riidl') ||
+      n.includes('shantilal')
+    );
+  };
+
+  const svuColleges = (data || []).filter(item => isSomaiyaInstitute(item.name));
+  const hasData = svuColleges.length > 0 && svuColleges.some(d => d.value > 0);
+  const chartHeight = Math.max(180, Math.min(300, svuColleges.length * 28));
 
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', minHeight: '320px', maxHeight: '450px', overflowY: 'auto', display: 'flex', flexDirection: 'column', flex: '1 1 100%', width: '100%' }}>
-      <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', position: 'sticky', top: 0, background: '#ffffff', zIndex: 10, paddingBottom: '0.25rem' }}>
-        New Visitors by College
-      </h4>
+    <div style={{ background: '#ffffff', border: '1px solid #000000', borderRadius: '8px', padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', flex: '1 1 100%', width: '100%', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+          New Visitors by SVU Institutes
+        </h4>
+        <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+          Somaiya Institutes Only
+        </span>
+      </div>
       
       {!hasData ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          No college data available for this period.
+        <div style={{ minHeight: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+          No SVU institute registrations in this period.
         </div>
       ) : (
-        <div style={{ width: '100%', height: `${chartHeight}px` }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={allColleges}
-              layout="vertical"
-              margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-              <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} tick={{ fontSize: 10 }} />
-              <YAxis 
-                dataKey="name" 
-                type="category" 
-                width={240} 
-                tickLine={false} 
-                axisLine={false} 
-                tick={{ fontSize: 9, fill: 'var(--text-secondary)' }}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                  fontSize: 12
-                }}
-              />
-              <Bar 
-                dataKey="value" 
-                name="New Registrations"
-                fill="#3b82f6" 
-                radius={[0, 6, 6, 0]}
-                barSize={14}
+        <div style={{ width: '100%', maxHeight: '250px', overflowY: 'auto' }}>
+          <div style={{ width: '100%', height: `${chartHeight}px` }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={svuColleges}
+                layout="vertical"
+                margin={{ top: 5, right: 15, left: -25, bottom: 5 }}
               >
-                <LabelList dataKey="value" position="right" style={{ fill: 'var(--text-secondary)', fontSize: 10, fontWeight: 600 }} />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} tick={{ fontSize: 9 }} />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={170} 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tick={{ fontSize: 9, fill: 'var(--text-secondary)', fontWeight: 500 }}
+                />
+                <Bar 
+                  dataKey="value" 
+                  name="New Registrations"
+                  fill="var(--primary)" 
+                  radius={[0, 4, 4, 0]}
+                  barSize={12}
+                  activeBar={false}
+                  style={{ pointerEvents: 'none' }}
+                >
+                  <LabelList dataKey="value" position="right" style={{ fill: 'var(--text-secondary)', fontSize: 9, fontWeight: 700 }} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
     </div>

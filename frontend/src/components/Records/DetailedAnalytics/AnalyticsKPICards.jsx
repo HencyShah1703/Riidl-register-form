@@ -1,42 +1,56 @@
 import React from 'react';
 
 export default function AnalyticsKPICards({ overview }) {
-  const { totalNewUsers, totalVisits, visitorsToday, newVisitorsToday, returningVisitorsToday } = overview;
+  const { 
+    totalNewUsers = 0, 
+    totalVisits = 0, 
+    totalUniqueVisitors = 0, 
+    totalReturningUsers = 0 
+  } = overview || {};
+
+  const calculatedTotalVisitors = totalUniqueVisitors || (totalNewUsers + totalReturningUsers);
+
+  const kpis = [
+    {
+      id: 'total-visitors',
+      label: 'Total Visitors',
+      value: calculatedTotalVisitors
+    },
+    {
+      id: 'new-visitors',
+      label: 'Total New Visitors',
+      value: totalNewUsers
+    },
+    {
+      id: 'total-visits',
+      label: 'Total Visits',
+      value: totalVisits
+    }
+  ];
 
   return (
-    <div className="records-header-grid" style={{ marginBottom: '2rem' }}>
-      
-      {/* Total New Visitors (Period) */}
-      <div className="stat-card glass-panel" style={{ padding: '1.25rem 1.5rem' }}>
-        <div className="stat-icon-wrapper purple" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}>
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-            <circle cx="8.5" cy="7" r="4" />
-            <line x1="20" y1="8" x2="20" y2="14" />
-            <line x1="17" y1="11" x2="23" y2="11" />
-          </svg>
+    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+      {kpis.map((kpi) => (
+        <div 
+          key={kpi.id} 
+          style={{ 
+            background: '#ffffff', 
+            border: '1px solid #000000', 
+            borderRadius: '6px', 
+            padding: '0.25rem 0.6rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            fontSize: '0.72rem',
+            fontWeight: 700,
+            color: 'var(--text-primary)',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+          }}
+        >
+          <span>{kpi.label}</span>
+          <span style={{ fontWeight: 800, color: 'var(--primary)' }}>{kpi.value}</span>
         </div>
-        <div className="stat-details">
-          <span className="stat-label">Total New Visitors</span>
-          <h3 className="stat-value" style={{ fontSize: '1.65rem' }}>{totalNewUsers}</h3>
-        </div>
-      </div>
-
-      {/* Total Visits (Period) */}
-      <div className="stat-card glass-panel" style={{ padding: '1.25rem 1.5rem' }}>
-        <div className="stat-icon-wrapper blue" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
-        </div>
-        <div className="stat-details">
-          <span className="stat-label">Total Visits</span>
-          <h3 className="stat-value" style={{ fontSize: '1.65rem' }}>{totalVisits}</h3>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
