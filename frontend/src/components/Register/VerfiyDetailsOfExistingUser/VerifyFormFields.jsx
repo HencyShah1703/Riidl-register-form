@@ -1,9 +1,10 @@
 import React from 'react';
-import { CollegeSelector, IAmSelector } from '../Selectors/index.jsx';
+import { CollegeSelector, IAmSelector, LocationSelector } from '../Selectors/index.jsx';
 import { parsePhoneNumber } from '../../../utils/phone.js';
 
 const STANDARD_PURPOSES = [
   'To Meet Someone',
+  'Internship',
   'For Program/Event',
   'For Training / Workshop / Research',
   'For Facility Tour',
@@ -22,11 +23,10 @@ export default function VerifyFormFields({
   setCustomPurpose
 }) {
   const parsedPhone = parsePhoneNumber(formData.phoneNumber);
-  const displayCountryCode = parsedPhone.countryCode.replace('+', '');
   const displayLocalNumber = parsedPhone.localNumber.replace(/\D/g, '');
 
   return (
-    <>
+    <div className="new-visitor-grid">
       {/* Name */}
       <div className="input-group">
         <label htmlFor="name">Name <span className="required">*</span></label>
@@ -72,29 +72,17 @@ export default function VerifyFormFields({
       {/* Phone Number (Locked/Disabled) */}
       <div className="input-group">
         <label htmlFor="phoneNumber">Phone Number (Registered)</label>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <div className="input-wrapper disabled" style={{ width: '85px', flexShrink: 0, position: 'relative' }}>
-            <span style={{ position: 'absolute', left: '0.75rem', fontSize: '0.95rem', color: 'var(--text-secondary)', pointerEvents: 'none', userSelect: 'none', fontWeight: 'bold' }}>+</span>
-            <input
-              id="countryCode"
-              type="text"
-              value={displayCountryCode}
-              disabled
-              style={{ paddingLeft: '1.5rem', paddingRight: '0.5rem', textAlign: 'center', cursor: 'not-allowed', color: 'var(--text-secondary)' }}
-            />
-          </div>
-          <div className="input-wrapper disabled" style={{ flexGrow: 1 }}>
-            <svg className="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
-            <input
-              id="phoneNumber"
-              type="tel"
-              value={displayLocalNumber}
-              disabled
-              style={{ cursor: 'not-allowed', color: 'var(--text-secondary)' }}
-            />
-          </div>
+        <div className="input-wrapper disabled">
+          <svg className="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+          </svg>
+          <input
+            id="phoneNumber"
+            type="tel"
+            value={displayLocalNumber}
+            disabled
+            style={{ cursor: 'not-allowed', color: 'var(--text-secondary)' }}
+          />
         </div>
       </div>
 
@@ -156,9 +144,59 @@ export default function VerifyFormFields({
         </div>
       </div>
 
+      {/* Internship Mentor Name */}
+      {formData.purposeOfVisit === 'Internship' && (
+        <div className="input-group full-width-field animate-fade-in">
+          <label htmlFor="mentorName">Internship Mentor Name <span className="required">*</span></label>
+          <div className="input-wrapper">
+            <svg className="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            <input
+              id="mentorName"
+              name="mentorName"
+              type="text"
+              placeholder="Enter your Internship Mentor name"
+              value={formData.mentorName || ''}
+              onChange={onChange}
+              required
+              disabled={isLoading}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Person Name to meet */}
+      {formData.purposeOfVisit === 'To Meet Someone' && (
+        <div className="input-group full-width-field animate-fade-in">
+          <label htmlFor="personToMeet">Person Name <span className="required">*</span></label>
+          <div className="input-wrapper">
+            <svg className="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            <input
+              id="personToMeet"
+              name="personToMeet"
+              type="text"
+              placeholder="Enter the name of the person you want to meet"
+              value={formData.personToMeet || ''}
+              onChange={onChange}
+              required
+              disabled={isLoading}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Custom Purpose input */}
       {isOtherPurpose && (
-        <div className="input-group animate-fade-in" style={{ marginTop: '0.5rem' }}>
+        <div className="input-group full-width-field animate-fade-in">
           <label htmlFor="customPurpose">Specify Purpose <span className="required">*</span></label>
           <div className="input-wrapper">
             <svg className="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -185,23 +223,13 @@ export default function VerifyFormFields({
       {/* Location */}
       <div className="input-group">
         <label htmlFor="location">Location <span className="required">*</span></label>
-        <div className="input-wrapper">
-          <svg className="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-          <select
-            id="location"
-            name="location"
-            value={formData.location || 'Riidl HQ'}
-            onChange={onChange}
-            required
-            disabled={isLoading}
-          >
-            <option value="Riidl HQ">Riidl HQ</option>
-          </select>
-        </div>
+        <LocationSelector
+          value={formData.location || ''}
+          onChange={onChange}
+          disabled={isLoading}
+          isPrefilled={true}
+        />
       </div>
-    </>
+    </div>
   );
 }

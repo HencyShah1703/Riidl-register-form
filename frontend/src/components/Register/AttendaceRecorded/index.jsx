@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReceiptHeader from './ReceiptHeader.jsx';
-import ReceiptDetails from './ReceiptDetails.jsx';
 import NewEntryButton from './NewEntryButton.jsx';
 
 // Attendance Recorded check-in confirmation card
 export default function AttendaceRecorded({ record, onReset, isNewVisitor }) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onReset();
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [onReset]);
+
   const formatTime = (timeString) => {
     if (!timeString) return 'Just now';
     const date = new Date(timeString);
@@ -18,7 +24,8 @@ export default function AttendaceRecorded({ record, onReset, isNewVisitor }) {
   return (
     <div className="success-receipt animate-fade-in">
       <ReceiptHeader record={record} isNewVisitor={isNewVisitor} />
-      <ReceiptDetails record={record} formattedTime={formatTime(record.timestamp)} />
+      {//<ReceiptDetails record={record} formattedTime={formatTime(record.timestamp)} />
+      }
       <NewEntryButton onReset={onReset} />
     </div>
   );

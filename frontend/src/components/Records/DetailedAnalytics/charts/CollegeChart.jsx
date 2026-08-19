@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 
 export default function CollegeChart({ data }) {
   const allColleges = data || [];
@@ -7,9 +7,9 @@ export default function CollegeChart({ data }) {
   const chartHeight = Math.max(240, allColleges.length * 35);
 
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', minHeight: '320px', maxHeight: '450px', overflowY: 'auto', display: 'flex', flexDirection: 'column', flex: '1 1 400px' }}>
+    <div className="glass-panel" style={{ padding: '1.5rem', minHeight: '320px', maxHeight: '450px', overflowY: 'auto', display: 'flex', flexDirection: 'column', flex: '1 1 100%', width: '100%' }}>
       <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', position: 'sticky', top: 0, background: '#ffffff', zIndex: 10, paddingBottom: '0.25rem' }}>
-        New Users by College
+        New Visitors by College
       </h4>
       
       {!hasData ? (
@@ -22,19 +22,17 @@ export default function CollegeChart({ data }) {
             <BarChart
               data={allColleges}
               layout="vertical"
-              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+              margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
               <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} tick={{ fontSize: 10 }} />
               <YAxis 
                 dataKey="name" 
                 type="category" 
-                width={120} 
+                width={240} 
                 tickLine={false} 
                 axisLine={false} 
                 tick={{ fontSize: 9, fill: 'var(--text-secondary)' }}
-                // Truncate long college names to prevent overflow
-                tickFormatter={(val) => val.length > 18 ? `${val.substring(0, 16)}...` : val}
               />
               <Tooltip
                 contentStyle={{
@@ -51,7 +49,9 @@ export default function CollegeChart({ data }) {
                 fill="#3b82f6" 
                 radius={[0, 6, 6, 0]}
                 barSize={14}
-              />
+              >
+                <LabelList dataKey="value" position="right" style={{ fill: 'var(--text-secondary)', fontSize: 10, fontWeight: 600 }} />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>

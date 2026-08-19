@@ -112,6 +112,7 @@ export default function CollegeSelector({ value, onChange, disabled, isPrefilled
   // Filter list of colleges based on typed text
   const filteredColleges = COLLEGES.filter((c) => {
     if (c === 'Other') return true;
+    if (searchTerm === value || searchTerm === 'Other') return true;
     return c.toLowerCase().includes(searchTerm.toLowerCase());
   });
 

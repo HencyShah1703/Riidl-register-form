@@ -78,7 +78,7 @@ export function exportToExcel(dashboardData, periodLabel, locationLabel) {
     ['Exported At', new Date().toLocaleString()],
     ['', ''],
     ['Key Performance Indicators', ''],
-    ['Total New Users', overview.totalNewUsers],
+    ['Total New Visitors', overview.totalNewUsers],
     ['Total Visits', overview.totalVisits],
     ['Unique Visitors Today', overview.visitorsToday],
     ['New Visitors Today', overview.newVisitorsToday],
@@ -87,13 +87,13 @@ export function exportToExcel(dashboardData, periodLabel, locationLabel) {
   const wsOverview = XLSX.utils.aoa_to_sheet(overviewRows);
   XLSX.utils.book_append_sheet(wb, wsOverview, 'Overview');
 
-  // Sheet 2: New Users Trend
+  // Sheet 2: New Visitors Trend
   const trendRows = [
     ['Date', 'First-Time Registrations'],
     ...newUsersTrend.map(t => [t.date, t.count])
   ];
   const wsTrend = XLSX.utils.aoa_to_sheet(trendRows);
-  XLSX.utils.book_append_sheet(wb, wsTrend, 'New User Trend');
+  XLSX.utils.book_append_sheet(wb, wsTrend, 'New Visitor Trend');
 
   // Sheet 3: Purpose of Visit
   const purposeRows = [
@@ -121,7 +121,7 @@ export function exportToExcel(dashboardData, periodLabel, locationLabel) {
 
   // Sheet 6: Periodic Summary
   const summaryRows = [
-    ['Time Period', 'New Users (First-time)', 'Total Visits (Logs)', 'Unique Visitors'],
+    ['Time Period', 'New Visitors (First-time)', 'Total Visits (Logs)', 'Unique Visitors'],
     ...Object.entries(summary).map(([key, val]) => [
       key.toUpperCase(),
       val.newUsers,
@@ -148,7 +148,7 @@ export function exportToCSV(dashboardData, datasetName) {
   let rows = [];
 
   if (datasetName === 'trend') {
-    headers = ['Date', 'New Users'];
+    headers = ['Date', 'New Visitors'];
     rows = dashboardData.newUsersTrend.map(t => [t.date, t.count]);
   } else if (datasetName === 'purpose') {
     headers = ['Purpose of Visit', 'Count'];
@@ -160,7 +160,7 @@ export function exportToCSV(dashboardData, datasetName) {
     headers = ['Visitor Category (I Am)', 'Count'];
     rows = dashboardData.visitorTypes.map(v => [v.name, v.value]);
   } else if (datasetName === 'summary') {
-    headers = ['Period', 'New Users', 'Total Visits', 'Unique Visitors'];
+    headers = ['Period', 'New Visitors', 'Total Visits', 'Unique Visitors'];
     rows = Object.entries(dashboardData.summary).map(([key, val]) => [
       key,
       val.newUsers,
@@ -172,7 +172,7 @@ export function exportToCSV(dashboardData, datasetName) {
     headers = ['Metric', 'Count'];
     const { overview } = dashboardData;
     rows = [
-      ['Total New Users', overview.totalNewUsers],
+      ['Total New Visitors', overview.totalNewUsers],
       ['Total Visits', overview.totalVisits],
       ['Visitors Today', overview.visitorsToday],
       ['New Visitors Today', overview.newVisitorsToday],

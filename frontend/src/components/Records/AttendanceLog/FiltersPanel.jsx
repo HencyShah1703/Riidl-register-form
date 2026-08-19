@@ -22,26 +22,22 @@ export default function FiltersPanel({
           <label htmlFor="search">Search Visitors</label>
           <form 
             onSubmit={onSearchSubmit}
-            style={{ display: 'flex', gap: '0.5rem', width: '100%' }}
+            style={{ width: '100%' }}
           >
-            <input
-              id="search"
-              type="text"
-              placeholder="Search by name, phone no, college, purpose..."
-              value={searchDraft}
-              onChange={(e) => setSearchDraft(e.target.value)}
-            />
-            <button 
-              type="submit" 
-              className="btn-primary" 
-              style={{ padding: '0.5rem 1rem' }}
-              title="Search"
-            >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <div className="input-wrapper">
+              <svg className="input-icon" style={{ color: '#9ca3af' }} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-            </button>
+              <input
+                id="search"
+                type="text"
+                placeholder="Search by name, phone no, college, purpose..."
+                value={searchDraft}
+                onChange={(e) => setSearchDraft(e.target.value)}
+                style={{ paddingLeft: '2.75rem' }}
+              />
+            </div>
           </form>
         </div>
 

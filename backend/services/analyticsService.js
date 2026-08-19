@@ -344,6 +344,43 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
   }));
 
   // 7. Group demographics
+  const STANDARD_COLLEGES = new Set([
+    'K J Somaiya School of Engineering',
+    'K J Somaiya Institute of Management',
+    'Dr. Shantilal K. Somaiya School of Commerce and Business Studies',
+    'Somaiya School of Basic and Applied Sciences',
+    'Somaiya School of Humanities and Social Sciences',
+    'K J Somaiya School of Education',
+    'K J Somaiya School of Languages and Literature',
+    'Somaiya School of Design',
+    'Dr. Shantilal K. Somaiya School of Art',
+    'Somaiya School of Civilisation Studies',
+    'Maya Somaiya School of Music and Performing Arts',
+    'Somaiya Dhwani Chitram',
+    'K J Somaiya Institute of Dharma Studies',
+    'Department of Library and Information Science',
+    'K J Somaiya College of Nursing',
+    'K J Somaiya Medical College and Research Centre',
+    'K J Somaiya Institute of Physiotherapy',
+    'K J Somaiya Institute of Technology',
+    'K J Somaiya Polytechnic',
+    'K J Somaiya Private Industrial Institute',
+    'K J Somaiya College of Arts and Commerce',
+    'K J Somaiya College of Science and Commerce',
+    'K J Somaiya Junior College',
+    'S K Somaiya College',
+    'K J Somaiya College of Education',
+    'K J Somaiya Institute of Engineering and Information Technology',
+    'Somaiya Vidyavihar University Research Centres',
+    'Research, Innovation, Incubation Design Laboratory (RiiDL)',
+    'Somaiya Sports Academy',
+    'Somaiya Vidyavihar International School',
+    'Somaiya School',
+    'Somaiya Vidyavihar High School',
+    'Somaiya Vidyavihar Mandir',
+    'K J Somaiya College of Physiotherapy'
+  ]);
+
   const purposeCounts = {};
   const collegeCounts = {};
   const visitorTypeCounts = {};
@@ -352,8 +389,8 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
     const p = user.purpose || 'Other';
     purposeCounts[p] = (purposeCounts[p] || 0) + 1;
 
-    const c = user.college || 'Other';
-    collegeCounts[c] = (collegeCounts[c] || 0) + 1;
+    const rawCollege = (user.college && user.college.trim()) || 'Other';
+    collegeCounts[rawCollege] = (collegeCounts[rawCollege] || 0) + 1;
 
     const i = user.iAm || 'Other';
     visitorTypeCounts[i] = (visitorTypeCounts[i] || 0) + 1;
@@ -370,17 +407,126 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
   const prevStart = new Date(start.getTime() - duration);
   const prevEnd = new Date(start.getTime() - 1);
   const previousPeriodStats = getStatsForPeriod(validAttendances, prevStart, prevEnd, location, firstVisitsMap);
+  // 9. Purpose Details & Custom groupings
+  const meetCounts = {};
+  const internshipCounts = {};
+  const externalCollegeCounts = {};
+  const otherVisitorTypeCounts = {};
+  const newVsReturningByPurposeMap = {};
 
-  // 9. Generate Insights
+  activeFiltered.forEach(a => {
+    // A. To Meet Someone details
+    if (a.purposeOfVisit === 'To Meet Someone' && a.personToMeet) {
+      const p = a.personToMeet.trim();
+      meetCounts[p] = (meetCounts[p] || 0) + 1;
+    }
+
+    // B. Internship (Mentor / Organization) details
+    if (a.purposeOfVisit === 'Internship' && a.mentorName) {
+      const org = a.mentorName.trim();
+      internshipCounts[org] = (internshipCounts[org] || 0) + 1;
+    }
+
+    // C. External/Other Colleges (Colleges not containing Somaiya)
+    if (a.visitor && a.visitor.collegeName) {
+      const c = a.visitor.collegeName.trim();
+      const isSomaiya = c.toLowerCase().includes('somaiya');
+      if (!isSomaiya && c !== 'Other' && c !== 'None') {
+        externalCollegeCounts[c] = (externalCollegeCounts[c] || 0) + 1;
+      }
+    }
+
+    // D. Other/Custom Visitor Types (Categories not standard Student/Startup/Faculty/etc)
+    if (a.visitor && a.visitor.iAm) {
+      const role = a.visitor.iAm.trim();
+      const isStandard = ['student', 'startup', 'faculty', 'somaiya management', 'vc & angel investors'].includes(role.toLowerCase());
+      if (!isStandard && role !== 'Other' && role !== 'None') {
+        otherVisitorTypeCounts[role] = (otherVisitorTypeCounts[role] || 0) + 1;
+      }
+    }
+
+    // E. New vs Returning by Purpose breakdown
+    if (a.visitor && a.visitor.phoneNumber) {
+      const key = getCanonicalPhoneKey(a.visitor.phoneNumber);
+      const fv = firstVisitsMap.get(key);
+      if (fv) {
+        const isNew = fv.timestamp >= start && fv.timestamp <= end;
+        const purp = a.purposeOfVisit || 'Other';
+        if (!newVsReturningByPurposeMap[purp]) {
+          newVsReturningByPurposeMap[purp] = { purpose: purp, new: 0, returning: 0 };
+        }
+        if (isNew) {
+          newVsReturningByPurposeMap[purp].new++;
+        } else {
+          newVsReturningByPurposeMap[purp].returning++;
+        }
+      }
+    }
+  });
+
+  const toMeetDetails = Object.entries(meetCounts)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10);
+
+  const internshipDetails = Object.entries(internshipCounts)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10);
+
+  const otherCollegeDetails = Object.entries(externalCollegeCounts)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10);
+
+  const otherVisitorTypeDetails = Object.entries(otherVisitorTypeCounts)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10);
+
+  const newVsReturningByPurpose = Object.values(newVsReturningByPurposeMap);
+
+  // F. Internship Visitor KPIs
+  const internshipAttendances = activeFiltered.filter(a => a.purposeOfVisit === 'Internship');
+  const totalInternshipVisits = internshipAttendances.length;
+  
+  const internshipPhones = new Set();
+  internshipAttendances.forEach(a => {
+    if (a.visitor && a.visitor.phoneNumber) {
+      internshipPhones.add(getCanonicalPhoneKey(a.visitor.phoneNumber));
+    }
+  });
+  const uniqueInternshipVisitors = internshipPhones.size;
+  const returningInternshipVisitors = Math.max(0, totalInternshipVisits - uniqueInternshipVisitors);
+
+  // 10. Generate Insights
   const insights = generateInsights(newUsersInPeriod, activePeriodStats, previousPeriodStats);
 
   return {
     overview: {
       totalNewUsers: activePeriodStats.newUsers,
       totalVisits: activePeriodStats.totalVisits,
+      totalUniqueVisitors: activePeriodStats.visitors,
+      totalReturningUsers: activePeriodStats.returningUsers,
       visitorsToday: todayStats.visitors,
       newVisitorsToday: todayStats.newUsers,
       returningVisitorsToday: todayStats.returningUsers
+    },
+    visitorRatio: [
+      { name: 'New Visitors', value: activePeriodStats.newUsers },
+      { name: 'Returning Visitors', value: activePeriodStats.returningUsers }
+    ],
+    purposeDetails: {
+      toMeet: toMeetDetails,
+      internship: internshipDetails,
+      otherCollege: otherCollegeDetails,
+      otherVisitorType: otherVisitorTypeDetails
+    },
+    newVsReturningByPurpose,
+    internshipStats: {
+      total: totalInternshipVisits,
+      unique: uniqueInternshipVisitors,
+      returning: returningInternshipVisitors
     },
     newUsersTrend,
     today: {

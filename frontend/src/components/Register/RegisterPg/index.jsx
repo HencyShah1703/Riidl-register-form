@@ -5,23 +5,20 @@ import NewVisitorPrompt from './NewVisitorPrompt.jsx';
 
 // Welcomes returning visitors and checks if their number is registered
 export default function RegisterPg({ onSelectFlow, onUserFound }) {
-  const [countryCode, setCountryCode] = useState('91');
   const [localNumber, setLocalNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    const cleanCC = countryCode.trim().replace(/\D/g, '');
     const cleanLN = localNumber.trim().replace(/\D/g, '');
-    const combinedPhone = `+${cleanCC}${cleanLN}`;
     if (!cleanLN) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/visitors/search?phone=${encodeURIComponent(combinedPhone)}`);
+      const response = await fetch(`http://localhost:5000/api/visitors/search?phone=${encodeURIComponent(cleanLN)}`);
       const data = await response.json();
 
       if (response.status === 404) {
@@ -51,8 +48,6 @@ export default function RegisterPg({ onSelectFlow, onUserFound }) {
       {error && <div className="error-alert">{error}</div>}
 
       <SearchForm
-        countryCode={countryCode}
-        setCountryCode={setCountryCode}
         localNumber={localNumber}
         setLocalNumber={setLocalNumber}
         isLoading={isLoading}

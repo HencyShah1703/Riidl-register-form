@@ -19,7 +19,9 @@ export default function Register({ currentPage, setCurrentPage }) {
     collegeName: '',
     iAm: '',
     purposeOfVisit: '',
-    location: 'Riidl HQ'
+    location: '',
+    mentorName: '',
+    personToMeet: ''
   });
 
   // Sync state if navigation changes externally (e.g. Navbar clicks)
@@ -35,7 +37,9 @@ export default function Register({ currentPage, setCurrentPage }) {
         collegeName: '',
         iAm: '',
         purposeOfVisit: '',
-        location: 'Riidl HQ'
+        location: '',
+        mentorName: '',
+        personToMeet: ''
       });
     }
   }, [currentPage]);
@@ -48,7 +52,9 @@ export default function Register({ currentPage, setCurrentPage }) {
       collegeName: user.collegeName || '',
       iAm: user.iAm || '',
       purposeOfVisit: '',
-      location: 'Riidl HQ'
+      location: '',
+      mentorName: '',
+      personToMeet: ''
     });
     setIsNewVisitorCheckin(false);
     setStep('verify');
@@ -64,7 +70,9 @@ export default function Register({ currentPage, setCurrentPage }) {
         collegeName: '',
         iAm: '',
         purposeOfVisit: '',
-        location: 'Riidl HQ'
+        location: '',
+        mentorName: '',
+        personToMeet: ''
       });
       setIsNewVisitorCheckin(true);
       setStep('new-visitor');
@@ -118,7 +126,9 @@ export default function Register({ currentPage, setCurrentPage }) {
       collegeName: '',
       iAm: '',
       purposeOfVisit: '',
-      location: 'Riidl HQ'
+      location: '',
+      mentorName: '',
+      personToMeet: ''
     });
     setCreatedRecord(null);
     setStep('welcome');
@@ -134,7 +144,7 @@ export default function Register({ currentPage, setCurrentPage }) {
       )}
 
       {step === 'verify' && (
-        <div className="terminal-card glass-panel animate-fade-in">
+        <div className="terminal-card glass-panel animate-fade-in wide-form-card">
           <VerfiyDetailsOfExistingUser
             formData={formData}
             onChange={handleInputChange}
@@ -146,7 +156,7 @@ export default function Register({ currentPage, setCurrentPage }) {
       )}
 
       {step === 'new-visitor' && (
-        <div className="terminal-card glass-panel animate-fade-in">
+        <div className="terminal-card glass-panel animate-fade-in wide-form-card">
           <NewVisitor
             formData={formData}
             onChange={handleInputChange}

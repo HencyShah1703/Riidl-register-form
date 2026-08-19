@@ -7,36 +7,14 @@
  */
 export function parsePhoneNumber(fullPhone) {
   if (!fullPhone) {
-    return { countryCode: '+91', localNumber: '' };
+    return { countryCode: '', localNumber: '' };
   }
   
-  // Remove all whitespace
-  const cleanPhone = fullPhone.trim().replace(/\s+/g, '');
+  // Remove all non-digits
+  const cleanPhone = fullPhone.trim().replace(/\D/g, '');
   
-  // If it starts with '+'
-  if (cleanPhone.startsWith('+')) {
-    if (cleanPhone.length > 10) {
-      return {
-        countryCode: cleanPhone.slice(0, cleanPhone.length - 10),
-        localNumber: cleanPhone.slice(cleanPhone.length - 10)
-      };
-    }
-    return { countryCode: cleanPhone, localNumber: '' };
-  }
+  // Get last 10 digits
+  const localNumber = cleanPhone.length > 10 ? cleanPhone.slice(cleanPhone.length - 10) : cleanPhone;
   
-  // If it's a 10 digit number
-  if (cleanPhone.length === 10 && /^\d+$/.test(cleanPhone)) {
-    return { countryCode: '+91', localNumber: cleanPhone };
-  }
-  
-  // If it's greater than 10 digits but doesn't start with '+'
-  if (cleanPhone.length > 10) {
-    return {
-      countryCode: '+' + cleanPhone.slice(0, cleanPhone.length - 10),
-      localNumber: cleanPhone.slice(cleanPhone.length - 10)
-    };
-  }
-  
-  // Fallback
-  return { countryCode: '+91', localNumber: cleanPhone };
+  return { countryCode: '', localNumber };
 }

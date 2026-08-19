@@ -83,6 +83,7 @@ export default function IAmSelector({ value, onChange, disabled, isPrefilled }) 
   // Filter list of roles based on typed text
   const filteredRoles = ROLES.filter((r) => {
     if (r === 'Other') return true;
+    if (searchTerm === value || searchTerm === 'Other') return true;
     return r.toLowerCase().includes(searchTerm.toLowerCase());
   });
 

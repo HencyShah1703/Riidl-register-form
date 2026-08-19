@@ -6,13 +6,12 @@ import RecordsTable from './RecordsTable.jsx';
 import VisitorDetailModal from './VisitorDetailModal.jsx';
 
 // Renders the complete check-in records database, filter dashboard, and detailed visitor history modal
-export default function AttendanceLog({ adminEmail, onGoToAnalytics }) {
+export default function AttendanceLog({ onGoToAnalytics }) {
   const [records, setRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Filter and Sorting States
-  const [searchQuery, setSearchQuery] = useState('');
   const [searchDraft, setSearchDraft] = useState('');
   const [timePeriod, setTimePeriod] = useState('all'); // 'all', 'week', 'month', 'year', 'custom'
   const [sortBy, setSortBy] = useState('date-desc'); // 'date-desc', 'date-asc', 'college', 'purpose', 'attendance'
@@ -28,7 +27,7 @@ export default function AttendanceLog({ adminEmail, onGoToAnalytics }) {
   const fetchRecords = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:5000/api/visitors/records?adminEmail=${encodeURIComponent(adminEmail)}`);
+      const response = await fetch('http://localhost:5000/api/visitors/records');
       const data = await response.json();
 
       if (!response.ok) {
@@ -44,10 +43,8 @@ export default function AttendanceLog({ adminEmail, onGoToAnalytics }) {
   };
 
   useEffect(() => {
-    if (adminEmail) {
-      fetchRecords();
-    }
-  }, [adminEmail]);
+    fetchRecords();
+  }, []);
 
   // 1. Time Period Filtering
   const dateFilteredRecords = React.useMemo(() => {
@@ -122,8 +119,8 @@ export default function AttendanceLog({ adminEmail, onGoToAnalytics }) {
   const finalFilteredRecords = React.useMemo(() => {
     // A. Apply Search Filter
     let result = [...dateFilteredRecords];
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
+    if (searchDraft.trim()) {
+      const q = searchDraft.toLowerCase().trim();
       result = result.filter(
         (r) =>
           (r.name && r.name.toLowerCase().includes(q)) ||
@@ -156,7 +153,7 @@ export default function AttendanceLog({ adminEmail, onGoToAnalytics }) {
     }
 
     return result;
-  }, [dateFilteredRecords, searchQuery, sortBy, visitorAttendanceCounts]);
+  }, [dateFilteredRecords, searchDraft, sortBy, visitorAttendanceCounts]);
 
   // 3. Modal Specific Visit History Filtering (scoped to the selected visitor)
   const modalFilteredVisits = React.useMemo(() => {
@@ -216,9 +213,19 @@ export default function AttendanceLog({ adminEmail, onGoToAnalytics }) {
     return `${date.toLocaleTimeString('en-US', timeOptions)} - ${date.toLocaleDateString('en-US', dateOptions)}`;
   };
 
+  const [logPage, setLogPage] = useState(1);
+  const logsPerPage = 10;
+
+  // Reset page when search or filters change
+  useEffect(() => {
+    setLogPage(1);
+  }, [searchDraft, timePeriod, sortBy, startDate, endDate]);
+
+  const totalLogPages = Math.ceil(finalFilteredRecords.length / logsPerPage);
+  const paginatedFinalRecords = finalFilteredRecords.slice((logPage - 1) * logsPerPage, logPage * logsPerPage);
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    setSearchQuery(searchDraft);
   };
 
   if (selectedVisitor) {
@@ -274,7 +281,7 @@ export default function AttendanceLog({ adminEmail, onGoToAnalytics }) {
           <RecordsHeader records={dateFilteredRecords} />
           
           <RecordsTable 
-            records={finalFilteredRecords} 
+            records={paginatedFinalRecords} 
             onViewDetails={(rec) => {
               setSelectedVisitor(rec);
               setModalPeriod('all');
@@ -282,6 +289,53 @@ export default function AttendanceLog({ adminEmail, onGoToAnalytics }) {
               setModalEnd('');
             }}
           />
+
+          {totalLogPages > 1 && (() => {
+            const maxVisiblePages = 10;
+            const startPage = Math.floor((logPage - 1) / maxVisiblePages) * maxVisiblePages + 1;
+            const endPage = Math.min(startPage + maxVisiblePages - 1, totalLogPages);
+            const visiblePages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+
+            return (
+              <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', gap: '0.35rem', marginTop: '1.5rem', alignItems: 'center' }}>
+                <button 
+                  disabled={logPage === 1} 
+                  onClick={() => setLogPage(p => Math.max(1, p - 1))}
+                  className="btn-secondary"
+                  style={{ padding: '0.35rem 0.85rem', fontSize: '0.82rem', borderRadius: '8px' }}
+                >
+                  Prev
+                </button>
+                {visiblePages.map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => setLogPage(pageNum)}
+                    className={`btn-secondary ${logPage === pageNum ? 'active' : ''}`}
+                    style={{
+                      padding: '0.35rem 0.85rem',
+                      fontSize: '0.82rem',
+                      borderRadius: '8px',
+                      backgroundColor: logPage === pageNum ? 'var(--primary)' : '',
+                      color: logPage === pageNum ? '#fff' : '',
+                      borderColor: logPage === pageNum ? 'var(--primary)' : '',
+                      minWidth: '35px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+                <button 
+                  disabled={logPage === totalLogPages} 
+                  onClick={() => setLogPage(p => Math.min(totalLogPages, p + 1))}
+                  className="btn-secondary"
+                  style={{ padding: '0.35rem 0.85rem', fontSize: '0.82rem', borderRadius: '8px' }}
+                >
+                  Next
+                </button>
+              </div>
+            );
+          })()}
         </>
       )}
     </div>

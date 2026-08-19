@@ -5,6 +5,7 @@ import NewVisitorSubmitButton from './NewVisitorSubmitButton.jsx';
 
 const STANDARD_PURPOSES = [
   'To Meet Someone',
+  'Internship',
   'For Program/Event',
   'For Training / Workshop / Research',
   'For Facility Tour',
@@ -20,12 +21,14 @@ export default function NewVisitor({ formData, onChange, onSubmit, onBack, isLoa
   // Keep local custom purpose state in sync with parent formData
   useEffect(() => {
     const val = formData.purposeOfVisit || '';
-    if (val && !STANDARD_PURPOSES.includes(val)) {
-      setIsOtherPurpose(true);
-      setCustomPurpose(val);
-    } else {
-      setIsOtherPurpose(false);
-      setCustomPurpose('');
+    if (val) {
+      if (!STANDARD_PURPOSES.includes(val)) {
+        setIsOtherPurpose(true);
+        setCustomPurpose(val);
+      } else {
+        setIsOtherPurpose(false);
+        setCustomPurpose('');
+      }
     }
   }, [formData.purposeOfVisit]);
 

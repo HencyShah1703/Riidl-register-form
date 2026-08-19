@@ -16,10 +16,6 @@ export default function NewVisitorHeader({ onBack, isLoading }) {
         <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1f2937', fontFamily: 'var(--font-title)' }}>Welcome to Riidl</div>
         <div style={{ fontSize: '0.85rem', color: '#4b5563', fontFamily: 'var(--font-body)', marginTop: '0.1rem' }}>A place to build your startup</div>
       </div>
-      <div className="form-title-group">
-        <h2>New Visitor</h2>
-        <p>Please fill in your details to record your visit.</p>
-      </div>
     </div>
   );
 }

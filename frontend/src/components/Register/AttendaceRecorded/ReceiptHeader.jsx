@@ -18,16 +18,15 @@ export default function ReceiptHeader({ record, isNewVisitor }) {
         </svg>
       </div>
 
-      <h2 className="success-title">Attendance Recorded!</h2>
+      <h2 className="success-title">Your Visit is Recorded!</h2>
       {isNewVisitor ? (
         <p className="success-subtitle">
-          Thank you for visiting RIIDL HQ. <br />
+          Thank you for visiting !! <br />
           We look forward to a productive interaction.
         </p>
       ) : (
         <p className="success-subtitle">
           Welcome back, <strong>{record.name}</strong>!<br />
-          Your visit has been recorded successfully.
         </p>
       )}
     </>

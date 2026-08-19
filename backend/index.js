@@ -6,9 +6,6 @@ import visitorRoutes from './routes/visitorRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import dns from 'dns';
 
-// Force DNS resolution to prefer IPv4 (fixes Nodemailer ENETUNREACH IPv6 failures on Windows)
-dns.setDefaultResultOrder('ipv4first');
-
 // Load environment variables
 dotenv.config();
 
@@ -28,11 +25,6 @@ app.use(express.json());
 // Routes
 app.use('/api/visitors', visitorRoutes);
 app.use('/api/analytics', analyticsRoutes);
-
-// Health Check endpoint
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'UP', message: 'RIIDL Attendance Server is running' });
-});
 
 // Error handling middleware
 app.use((err, req, res, next) => {

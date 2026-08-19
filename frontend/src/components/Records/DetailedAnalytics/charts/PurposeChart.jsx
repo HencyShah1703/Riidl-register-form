@@ -6,10 +6,31 @@ const COLORS = ['#A20202', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'
 export default function PurposeChart({ data }) {
   const hasData = data && data.length > 0 && data.some(d => d.value > 0);
 
+  // Custom label showing count and percentage
+  const renderCustomLabel = ({ cx, cy, midAngle, outerRadius, percent, value }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 15;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="var(--text-secondary)"
+        textAnchor={x > cx ? 'start' : 'end'}
+        dominantBaseline="central"
+        style={{ fontSize: '10px', fontWeight: 600 }}
+      >
+        {`${value} (${(percent * 100).toFixed(0)}%)`}
+      </text>
+    );
+  };
+
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', minHeight: '320px', display: 'flex', flexDirection: 'column', flex: '1 1 300px' }}>
+    <div className="glass-panel" style={{ padding: '1.5rem', minHeight: '340px', display: 'flex', flexDirection: 'column', flex: '1 1 calc(50% - 0.75rem)', minWidth: '380px' }}>
       <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-        New Users by Purpose
+        New Visitors by Purpose
       </h4>
       
       {!hasData ? (
@@ -22,12 +43,14 @@ export default function PurposeChart({ data }) {
             <PieChart>
               <Pie
                 data={data}
-                cx="50%"
+                cx="35%"
                 cy="50%"
                 innerRadius={50}
-                outerRadius={75}
+                outerRadius={70}
                 paddingAngle={2}
                 dataKey="value"
+                label={renderCustomLabel}
+                labelLine={false}
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -43,11 +66,18 @@ export default function PurposeChart({ data }) {
                 }}
               />
               <Legend 
-                verticalAlign="bottom" 
-                height={48} 
+                layout="vertical"
+                align="right" 
+                verticalAlign="middle"
                 iconType="circle"
-                iconSize={6}
-                wrapperStyle={{ fontSize: '10px', overflowY: 'auto', maxHeight: '48px', paddingRight: '5px' }}
+                iconSize={8}
+                wrapperStyle={{ 
+                  fontSize: '11px', 
+                  right: 0,
+                  maxWidth: '50%',
+                  overflowY: 'auto',
+                  maxHeight: '200px'
+                }}
               />
             </PieChart>
           </ResponsiveContainer>

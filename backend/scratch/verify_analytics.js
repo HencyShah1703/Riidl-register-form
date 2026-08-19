@@ -35,41 +35,49 @@ async function runTests() {
       iAm: 'Student'
     });
 
-    const aug1Bounds = getKolkataDayBounds('2026-08-01');
-    const aug5Bounds = getKolkataDayBounds('2026-08-05');
-    const aug12Bounds = getKolkataDayBounds('2026-08-12'); // target day is Aug 12
+    const todayBounds = getKolkataDayBounds(new Date());
+    
+    const getRelativeDateBounds = (daysAgo) => {
+      const d = new Date();
+      d.setDate(d.getDate() - daysAgo);
+      return getKolkataDayBounds(d);
+    };
 
-    // Test 1: Phone 1111 visits Aug 1, Aug 5, Aug 12.
+    const pastBounds1 = getRelativeDateBounds(11); // e.g. 11 days ago
+    const pastBounds2 = getRelativeDateBounds(7);  // e.g. 7 days ago
+    const todayTargetBounds = todayBounds;         // today
+
+    // Test 1: Phone 1111 visits 11 days ago, 7 days ago, today.
     await Attendance.create({
       visitor: v1._id,
       purposeOfVisit: 'Meeting',
       location: 'Riidl HQ',
-      timestamp: aug1Bounds.start // Aug 1
+      timestamp: pastBounds1.start // 11 days ago
     });
 
     await Attendance.create({
       visitor: v1._id,
       purposeOfVisit: 'Meeting',
       location: 'Riidl HQ',
-      timestamp: aug5Bounds.start // Aug 5
+      timestamp: pastBounds2.start // 7 days ago
     });
 
-    // Test 4: Phone checks in twice on the same day (Aug 12).
+    // Test 4: Phone checks in twice on the same day (today).
     await Attendance.create({
       visitor: v1._id,
       purposeOfVisit: 'Mentorship Session',
       location: 'Riidl HQ',
-      timestamp: new Date(aug12Bounds.start.getTime() + 2 * 60 * 60 * 1000) // Aug 12 10:00 AM
+      timestamp: new Date(todayTargetBounds.start.getTime() + 2 * 60 * 60 * 1000) // Today 10:00 AM
     });
 
     await Attendance.create({
       visitor: v1._id,
       purposeOfVisit: 'Mentorship Session',
       location: 'Riidl HQ',
-      timestamp: new Date(aug12Bounds.start.getTime() + 7 * 60 * 60 * 1000) // Aug 12 3:00 PM
+      timestamp: new Date(todayTargetBounds.start.getTime() + 7 * 60 * 60 * 1000) // Today 3:00 PM
     });
 
-    // Test 3: Phone 2222 (equivalent format "+91 98123 45678") visits for the first time Aug 12.
+    // Test 3: Phone 2222 (equivalent format "+91 98123 45678") visits for the first time today.
     const v2 = await Visitor.create({
       name: 'Rohan Sharma',
       email: 'rohan.sharma@somaiya.edu',
@@ -82,11 +90,11 @@ async function runTests() {
       visitor: v2._id,
       purposeOfVisit: 'Seminar / Workshop',
       location: 'Riidl HQ',
-      timestamp: aug12Bounds.start // Aug 12
+      timestamp: todayTargetBounds.start // today
     });
 
-    // Run calculation for period Aug 1 to Aug 12 (today)
-    const data = await getDashboardData(null, '2026-08-01', '2026-08-12', 'Riidl HQ');
+    // Run calculation for period (from 11 days ago to today)
+    const data = await getDashboardData(null, pastBounds1.start, todayTargetBounds.end, 'Riidl HQ');
 
     console.log('\n--- VERIFICATION RESULTS ---');
     console.log('Data Overview:', JSON.stringify(data.overview, null, 2));

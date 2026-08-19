@@ -1,22 +1,25 @@
 import { useState, useEffect } from 'react';
-import Navbar from './pages/Navbar/index.jsx';
 import Register from './pages/Register/index.jsx';
 import Records from './pages/Records/index.jsx';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('main'); // 'main', 'new-user', 'registered-user', 'records', 'analytics'
+  const [currentPage, setCurrentPage] = useState('register'); // 'register', 'new-user', 'registered-user', 'visitoranalytics', 'analytics'
   const [prefilledUser, setPrefilledUser] = useState(null);
 
   // Sync state with browser URL path
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-      if (path === '/analytics') {
+      if (path === '/visitor-analytics') {
+        setCurrentPage('visitoranalytics');
+      } else if (path === '/detailed-analytics') {
         setCurrentPage('analytics');
-      } else if (path === '/records') {
-        setCurrentPage('records');
+      } else if (path === '/visitor-entry') {
+        setCurrentPage('register');
       } else {
-        setCurrentPage('main');
+        // Default root redirects to /visitor-entry
+        window.history.replaceState(null, '', '/visitor-entry');
+        setCurrentPage('register');
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -26,21 +29,20 @@ function App() {
 
   const handleSetPage = (page) => {
     setCurrentPage(page);
-    if (page === 'analytics') {
-      window.history.pushState(null, '', '/analytics');
-    } else if (page === 'records') {
-      window.history.pushState(null, '', '/records');
-    } else if (page === 'main') {
-      window.history.pushState(null, '', '/');
+    if (page === 'visitoranalytics') {
+      window.history.pushState(null, '', '/visitor-analytics');
+    } else if (page === 'analytics') {
+      window.history.pushState(null, '', '/detailed-analytics');
+    } else if (page === 'register' || page === 'main') {
+      window.history.pushState(null, '', '/visitor-entry');
     }
   };
 
   return (
     <div className="app-container">
-      <Navbar currentPage={currentPage} setCurrentPage={handleSetPage} />
       
       <main className="page-content">
-        {['main', 'new-user', 'registered-user'].includes(currentPage) && (
+        {['register', 'main', 'new-user', 'registered-user'].includes(currentPage) && (
           <Register 
             currentPage={currentPage} 
             setCurrentPage={handleSetPage} 
@@ -49,7 +51,7 @@ function App() {
           />
         )}
         
-        {currentPage === 'records' && (
+        {currentPage === 'visitoranalytics' && (
           <Records subPage="log" />
         )}
 

@@ -5,6 +5,7 @@ import VerifySubmitButton from './VerifySubmitButton.jsx';
 
 const STANDARD_PURPOSES = [
   'To Meet Someone',
+  'Internship',
   'For Program/Event',
   'For Training / Workshop / Research',
   'For Facility Tour',
@@ -20,12 +21,14 @@ export default function VerfiyDetailsOfExistingUser({ formData, onChange, onSubm
   // Synchronize custom purpose state with parent formData
   useEffect(() => {
     const val = formData.purposeOfVisit || '';
-    if (val && !STANDARD_PURPOSES.includes(val)) {
-      setIsOtherPurpose(true);
-      setCustomPurpose(val);
-    } else {
-      setIsOtherPurpose(false);
-      setCustomPurpose('');
+    if (val) {
+      if (!STANDARD_PURPOSES.includes(val)) {
+        setIsOtherPurpose(true);
+        setCustomPurpose(val);
+      } else {
+        setIsOtherPurpose(false);
+        setCustomPurpose('');
+      }
     }
   }, [formData.purposeOfVisit]);
 

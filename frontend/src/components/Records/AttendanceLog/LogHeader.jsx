@@ -5,8 +5,8 @@ export default function LogHeader({ onGoToAnalytics, onRefresh, isLoading }) {
   return (
     <div className="dashboard-header">
       <div>
-        <h2>Attendance Log</h2>
-        <p>Real-time list of visitors and check-ins at RIIDL HQ.</p>
+        <h2>Logs</h2>
+        <p>Real-time list of visitors and check-ins</p>
       </div>
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
         <button 

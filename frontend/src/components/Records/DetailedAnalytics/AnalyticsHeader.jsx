@@ -5,7 +5,7 @@ export default function AnalyticsHeader({ periodLabel, locationLabel, onRefresh,
   return (
     <div className="dashboard-header" style={{ marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
       <div>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, letterSpacing: '-0.025em' }}>Attendance Insights</h2>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, letterSpacing: '-0.025em' }}>Insights</h2>
         <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
           Detailed visitor registration demographics and check-in analysis for <strong>{locationLabel}</strong>.
         </p>

@@ -24,7 +24,7 @@ export default function SummaryTable({ summary }) {
           <thead>
             <tr>
               <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Time Period</th>
-              <th style={{ textAlign: 'center', padding: '0.75rem 1rem' }}>New Users (First-time)</th>
+              <th style={{ textAlign: 'center', padding: '0.75rem 1rem' }}>New Visitors (First-time)</th>
               <th style={{ textAlign: 'center', padding: '0.75rem 1rem' }}>Total Visits (Check-ins)</th>
               <th style={{ textAlign: 'center', padding: '0.75rem 1rem' }}>Unique Visitors</th>
             </tr>

@@ -12,6 +12,14 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    mentorName: {
+      type: String,
+      trim: true
+    },
+    personToMeet: {
+      type: String,
+      trim: true
+    },
     location: {
       type: String,
       default: 'Riidl HQ',

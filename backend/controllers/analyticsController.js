@@ -5,12 +5,7 @@ import { getDashboardData } from '../services/analyticsService.js';
 // @access  Private (Admin Only)
 export const getDashboard = async (req, res) => {
   try {
-    const { adminEmail, from, to, location } = req.query;
-
-    // Reusing the existing admin authorization convention
-    if (!adminEmail || adminEmail.trim().toLowerCase() !== 'hency.shah@somaiya.edu') {
-      return res.status(403).json({ message: 'Access Denied: Authorized Admin Only' });
-    }
+    const { from, to, location } = req.query;
 
     const data = await getDashboardData(null, from, to, location);
     res.status(200).json(data);

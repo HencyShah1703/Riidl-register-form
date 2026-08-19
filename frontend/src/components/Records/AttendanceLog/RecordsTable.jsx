@@ -43,7 +43,7 @@ export default function RecordsTable({ records, onViewDetails }) {
               <th>College</th>
               <th>I am</th>
               <th>Purpose of Visit</th>
-              <th>Total Attendance</th>
+              <th>Total Visits</th>
               <th>Check-in Time</th>
               <th>Location</th>
               <th>Other Details</th>
@@ -88,7 +88,7 @@ export default function RecordsTable({ records, onViewDetails }) {
                     fontSize: '0.82rem',
                     border: '1px solid #bfdbfe' 
                   }}>
-                    {record.totalAttendance} {record.totalAttendance === 1 ? 'visit' : 'visits'}
+                    {record.totalAttendance}
                   </span>
                 </td>
                 <td>
@@ -106,7 +106,7 @@ export default function RecordsTable({ records, onViewDetails }) {
                   <button 
                     type="button" 
                     className="btn-secondary" 
-                    style={{ padding: '0.4rem 0.85rem', fontSize: '0.82rem' }}
+                    style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }}
                     onClick={() => onViewDetails(record)}
                   >
                     View Details
@@ -143,8 +143,8 @@ export default function RecordsTable({ records, onViewDetails }) {
               <span className="body-val purpose-text">{record.purposeOfVisit}</span>
             </div>
             <div className="card-body-row">
-              <span className="body-label">Total Attendance:</span>
-              <span className="body-val"><strong>{record.totalAttendance} {record.totalAttendance === 1 ? 'visit' : 'visits'}</strong></span>
+              <span className="body-label">Total Visits:</span>
+              <span className="body-val"><strong>{record.totalAttendance}</strong></span>
             </div>
             <div className="card-body-row">
               <span className="body-label">Time:</span>
