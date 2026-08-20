@@ -11,16 +11,16 @@ export default function AnalyticsChartsSection({ dashboardData }) {
   if (!dashboardData) return null;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', width: '100%' }}>
       
       {/* 1. FIRST CHART: New Visitor Registrations Over Time & New Visitors by SVU Institutes side-by-side */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '0.75rem', width: '100%' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '0.45rem', width: '100%' }}>
         <NewUsersTrend data={dashboardData.newUsersTrend} />
         <CollegeChart data={dashboardData.colleges} />
       </div>
 
       {/* 2. Donut / Pie Charts Row (2 cards side-by-side) */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', width: '100%' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', width: '100%' }}>
         <div style={{ flex: '1 1 300px', display: 'flex' }}>
           <PurposeChart data={dashboardData.purpose} />
         </div>
@@ -30,7 +30,7 @@ export default function AnalyticsChartsSection({ dashboardData }) {
       </div>
 
       {/* 3. New vs Returning Stacked Bar & Internship Visitors side-by-side */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '0.75rem', width: '100%' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '0.45rem', width: '100%' }}>
         <VisitorRatioBreakdownChart data={dashboardData.newVsReturningByPurpose} />
         <InternshipVisitorsChart 
           stats={dashboardData.internshipStats} 

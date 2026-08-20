@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const ROLES = [
-  'Other',
   'Student',
   'Startup',
   'Faculty',
   'Somaiya Management',
-  'VC & Angel investors'
+  'VC & Angel investors',
+  'Other'
 ];
 
 // Renders the searchable category role dropdown selector (e.g. Student, Startup, Faculty), with manual entry support
@@ -53,6 +53,9 @@ export default function IAmSelector({ value, onChange, disabled, isPrefilled }) 
   const handleSearchChange = (e) => {
     const text = e.target.value;
     setSearchTerm(text);
+    if (text !== 'Other') {
+      setIsOther(false);
+    }
     setIsOpen(true);
     
     // If user clears the input, clear in parent form too

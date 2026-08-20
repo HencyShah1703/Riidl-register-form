@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const COLLEGES = [
-  'Other',
   'K J Somaiya School of Engineering',
   'K J Somaiya Institute of Management',
   'Dr. Shantilal K. Somaiya School of Commerce and Business Studies',
@@ -35,8 +34,19 @@ const COLLEGES = [
   'Somaiya School',
   'Somaiya Vidyavihar High School',
   'Somaiya Vidyavihar Mandir',
-  'K J Somaiya College of Physiotherapy'
+  'K J Somaiya College of Physiotherapy',
+  'Other',
 ];
+const CUSTOM_COLLEGES_STORAGE_KEY = 'riidl-custom-colleges';
+
+const getStoredCustomColleges = () => {
+  try {
+    const storedColleges = JSON.parse(localStorage.getItem(CUSTOM_COLLEGES_STORAGE_KEY) || '[]');
+    return Array.isArray(storedColleges) ? storedColleges : [];
+  } catch {
+    return [];
+  }
+};
 
 // Renders the searchable college dropdown selector, with a manual 'Other' input fallback
 export default function CollegeSelector({ value, onChange, disabled, isPrefilled }) {
@@ -44,7 +54,10 @@ export default function CollegeSelector({ value, onChange, disabled, isPrefilled
   const [searchTerm, setSearchTerm] = useState('');
   const [isOther, setIsOther] = useState(false);
   const [customValue, setCustomValue] = useState('');
+  const [customColleges, setCustomColleges] = useState(getStoredCustomColleges);
   const containerRef = useRef(null);
+
+  const colleges = [...COLLEGES.slice(0, -1), ...customColleges, 'Other'];
 
   // Initialize and sync state based on value passed from parent
   useEffect(() => {
@@ -52,7 +65,7 @@ export default function CollegeSelector({ value, onChange, disabled, isPrefilled
       setSearchTerm('');
       setIsOther(false);
       setCustomValue('');
-    } else if (COLLEGES.includes(value)) {
+    } else if (colleges.includes(value)) {
       if (value === 'Other') {
         setIsOther(true);
         setSearchTerm('Other');
@@ -66,7 +79,7 @@ export default function CollegeSelector({ value, onChange, disabled, isPrefilled
       setSearchTerm('Other');
       setCustomValue(value);
     }
-  }, [value]);
+  }, [value, customColleges]);
 
   // Close dropdown on clicking outside the component
   useEffect(() => {
@@ -82,6 +95,9 @@ export default function CollegeSelector({ value, onChange, disabled, isPrefilled
   const handleSearchChange = (e) => {
     const text = e.target.value;
     setSearchTerm(text);
+    if (text !== 'Other') {
+      setIsOther(false);
+    }
     setIsOpen(true);
     
     // If user clears the input, clear in parent form too
@@ -109,15 +125,24 @@ export default function CollegeSelector({ value, onChange, disabled, isPrefilled
     onChange({ target: { name: 'collegeName', value: text } });
   };
 
+  const persistCustomCollege = () => {
+    const collegeName = customValue.trim();
+    if (collegeName && !colleges.includes(collegeName)) {
+      const updatedColleges = [...customColleges, collegeName];
+      setCustomColleges(updatedColleges);
+      localStorage.setItem(CUSTOM_COLLEGES_STORAGE_KEY, JSON.stringify(updatedColleges));
+    }
+  };
+
   // Filter list of colleges based on typed text
-  const filteredColleges = COLLEGES.filter((c) => {
+  const filteredColleges = colleges.filter((c) => {
     if (c === 'Other') return true;
     if (searchTerm === value || searchTerm === 'Other') return true;
     return c.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (
-    <div className="college-selector-container" ref={containerRef}>
+    <div className="college-selector-container" ref={containerRef} onSubmitCapture={persistCustomCollege}>
       <div className={`input-wrapper ${isPrefilled ? 'prefilled-highlight' : ''} ${disabled ? 'disabled' : ''}`}>
         <svg className="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
@@ -211,6 +236,7 @@ export default function CollegeSelector({ value, onChange, disabled, isPrefilled
               placeholder="Enter your college / institute name"
               value={customValue}
               onChange={handleCustomValueChange}
+              onBlur={persistCustomCollege}
               required
               disabled={disabled}
             />

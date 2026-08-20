@@ -51,9 +51,9 @@ export default function NewUsersTrend({ data }) {
   const hasData = chartData && chartData.length > 0 && chartData.some(d => d.count > 0);
 
   return (
-    <div style={{ background: '#ffffff', border: '1px solid #000000', borderRadius: '8px', padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', flex: '1 1 100%', width: '100%', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-        <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+    <div style={{ background: '#ffffff', border: '1px solid #000000', borderRadius: '8px', padding: '0.65rem 0.85rem', display: 'flex', flexDirection: 'column', flex: '1 1 100%', width: '100%', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+        <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
           New Visitor Registrations Over Time
         </h4>
         <div style={{ display: 'flex', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '1px', background: '#f8fafc' }}>
@@ -93,40 +93,40 @@ export default function NewUsersTrend({ data }) {
       </div>
       
       {!hasData ? (
-        <div style={{ minHeight: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+        <div style={{ minHeight: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
           No new registrations recorded in the selected period.
         </div>
       ) : (
-        <div style={{ width: '100%', height: '200px' }}>
+        <div style={{ width: '100%', height: '260px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}
-              margin={{ top: 15, right: 15, left: -30, bottom: 0 }}
+              margin={{ top: 20, right: 20, left: -20, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis 
                 dataKey="date" 
                 tickLine={false} 
-                axisLine={false}
-                tick={{ fill: 'var(--text-secondary)', fontSize: 9 }}
+                axisLine={{ stroke: '#000000', strokeWidth: 1 }}
+                tick={{ fill: '#0f172a', fontSize: 10, fontWeight: 600 }}
               />
               <YAxis 
                 allowDecimals={false} 
                 tickLine={false} 
-                axisLine={false}
-                tick={{ fill: 'var(--text-secondary)', fontSize: 9 }}
+                axisLine={{ stroke: '#000000', strokeWidth: 1 }}
+                tick={{ fill: '#0f172a', fontSize: 10, fontWeight: 600 }}
               />
               <Line
                 type="monotone"
                 dataKey="count"
                 name="New Visitors"
                 stroke="var(--primary)"
-                strokeWidth={2}
+                strokeWidth={2.5}
                 activeDot={false}
-                dot={{ r: 2.5, stroke: 'var(--primary)', strokeWidth: 1, fill: '#ffffff' }}
+                dot={{ r: 3, stroke: 'var(--primary)', strokeWidth: 1.5, fill: '#ffffff' }}
                 style={{ pointerEvents: 'none' }}
               >
-                <LabelList dataKey="count" position="top" style={{ fill: 'var(--text-secondary)', fontSize: 9, fontWeight: 700 }} />
+                <LabelList dataKey="count" position="top" offset={8} style={{ fill: '#0f172a', fontSize: 10, fontWeight: 800 }} />
               </Line>
             </LineChart>
           </ResponsiveContainer>

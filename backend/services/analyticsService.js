@@ -344,7 +344,7 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
   }));
 
   // 7. Group demographics
-  const STANDARD_COLLEGES = new Set([
+  const SOMAIYA_COLLEGES = new Set([
     'K J Somaiya School of Engineering',
     'K J Somaiya Institute of Management',
     'Dr. Shantilal K. Somaiya School of Commerce and Business Studies',
@@ -358,7 +358,6 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
     'Maya Somaiya School of Music and Performing Arts',
     'Somaiya Dhwani Chitram',
     'K J Somaiya Institute of Dharma Studies',
-    'Department of Library and Information Science',
     'K J Somaiya College of Nursing',
     'K J Somaiya Medical College and Research Centre',
     'K J Somaiya Institute of Physiotherapy',
@@ -428,6 +427,12 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
     visitorTypeCounts[i] = (visitorTypeCounts[i] || 0) + 1;
   });
 
+  SOMAIYA_COLLEGES.forEach(collegeName => {
+    if (!(collegeName in collegeCounts)) {
+      collegeCounts[collegeName] = 0;
+    }
+  });
+
   const purpose = Object.entries(purposeCounts).map(([name, value]) => ({ name, value }));
   const colleges = Object.entries(collegeCounts)
     .map(([name, value]) => ({ name, value }))
@@ -483,7 +488,12 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
       const fv = firstVisitsMap.get(key);
       if (fv) {
         const isNew = fv.timestamp >= start && fv.timestamp <= end;
-        const purp = a.purposeOfVisit || 'Other';
+        let rawPurp = (a.purposeOfVisit && a.purposeOfVisit.trim()) || 'Other';
+        const isStd = STANDARD_PURPOSES.some(sp => sp.toLowerCase() === rawPurp.toLowerCase());
+        let purp = 'Other';
+        if (isStd) {
+          purp = STANDARD_PURPOSES.find(sp => sp.toLowerCase() === rawPurp.toLowerCase()) || rawPurp;
+        }
         if (!newVsReturningByPurposeMap[purp]) {
           newVsReturningByPurposeMap[purp] = { purpose: purp, new: 0, returning: 0 };
         }
@@ -496,25 +506,28 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
     }
   });
 
+  // Ensure standard purposes and 'Other' are included in the breakdown
+  [...STANDARD_PURPOSES, 'Other'].forEach(p => {
+    if (!newVsReturningByPurposeMap[p]) {
+      newVsReturningByPurposeMap[p] = { purpose: p, new: 0, returning: 0 };
+    }
+  });
+
   const toMeetDetails = Object.entries(meetCounts)
     .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 10);
+    .sort((a, b) => b.value - a.value);
 
   const internshipDetails = Object.entries(internshipCounts)
     .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 10);
+    .sort((a, b) => b.value - a.value);
 
   const otherCollegeDetails = Object.entries(externalCollegeCounts)
     .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 10);
+    .sort((a, b) => b.value - a.value);
 
   const otherVisitorTypeDetails = Object.entries(otherVisitorTypeCounts)
     .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 10);
+    .sort((a, b) => b.value - a.value);
 
   const newVsReturningByPurpose = Object.values(newVsReturningByPurposeMap);
 
