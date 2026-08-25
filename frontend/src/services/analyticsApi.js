@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000/api/analytics';
+const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/analytics`;
 
 /**
  * Fetches dashboard analytics data from the backend.
