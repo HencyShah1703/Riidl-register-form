@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import AnalyticsHeader from './AnalyticsHeader.jsx';
+import React, { useState, useEffect } from 'react';;
 import AnalyticsFilters from './AnalyticsFilters.jsx';
 import AnalyticsKPICards from './AnalyticsKPICards.jsx';
 import AnalyticsChartsSection from './charts/index.jsx';

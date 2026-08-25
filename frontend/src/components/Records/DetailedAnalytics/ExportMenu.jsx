@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { exportToPDF, exportToExcel, exportToCSV } from '../../../utils/exportAnalytics.js';
 
-export default function ExportMenu({ dashboardData, periodLabel, locationLabel }) {
+export default function ExportMenu({ dashboardData, periodLabel, locationLabel, buttonWidth = '140px' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const menuRef = useRef(null);
@@ -40,14 +40,16 @@ export default function ExportMenu({ dashboardData, periodLabel, locationLabel }
   const isDisabled = !dashboardData || isExportingPDF;
 
   return (
-    <div className="export-menu-container" ref={menuRef} style={{ position: 'relative', display: 'inline-block' }}>
+    <div className="export-menu-container" ref={menuRef} style={{ position: 'relative', display: 'inline-block', width: buttonWidth }}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isDisabled}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
+          justifyContent: 'center',
           height: '24px',
+          width: '100%',
           padding: '0.2rem 0.55rem',
           fontSize: '0.73rem',
           fontWeight: 600,

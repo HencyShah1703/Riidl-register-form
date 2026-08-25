@@ -139,7 +139,7 @@ export default function AnalyticsFilters({
         </div>
 
         {/* Column 3: Actions (Pushed to the right) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', alignItems: 'flex-end', marginLeft: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', alignItems: 'flex-end', marginLeft: 'auto', width: '140px' }}>
           {/* Row 1 button: Back to Logs */}
           <button 
             onClick={onBack}
@@ -147,7 +147,8 @@ export default function AnalyticsFilters({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.25rem',
-              height: '20px',
+              height: '24px',
+              width: '140px',
               padding: '0 0.45rem',
               fontSize: '0.7rem',
               fontWeight: 700,
@@ -164,7 +165,7 @@ export default function AnalyticsFilters({
               <line x1="19" y1="12" x2="5" y2="12" />
               <polyline points="12 19 5 12 12 5" />
             </svg>
-            Back to Logs
+            <pre>  Back to Logs</pre>
           </button>
 
           {/* Row 2 button: Export / Save */}
@@ -172,6 +173,7 @@ export default function AnalyticsFilters({
             dashboardData={dashboardData} 
             periodLabel={periodLabel} 
             locationLabel={locationLabel} 
+            buttonWidth="140px"
           />
         </div>
 
