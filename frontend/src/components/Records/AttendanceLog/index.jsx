@@ -4,6 +4,7 @@ import FiltersPanel from './FiltersPanel.jsx';
 import RecordsHeader from './RecordsHeader.jsx';
 import RecordsTable from './RecordsTable.jsx';
 import VisitorDetailModal from './VisitorDetailModal.jsx';
+import { apiFetch } from '../../../config/api.js';
 
 // Renders the complete check-in records database, filter dashboard, and detailed visitor history modal
 export default function AttendanceLog({ onGoToAnalytics }) {
@@ -27,8 +28,8 @@ export default function AttendanceLog({ onGoToAnalytics }) {
   const fetchRecords = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/visitors/records`);
-      const data = await response.json();
+      const response = await apiFetch('/api/visitors/records');
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
         throw new Error(data.message || 'Failed to retrieve attendance logs');

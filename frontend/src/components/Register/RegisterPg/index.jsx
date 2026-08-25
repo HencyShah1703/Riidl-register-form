@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import LogoHeader from './LogoHeader.jsx';
 import SearchForm from './SearchForm.jsx';
 import NewVisitorPrompt from './NewVisitorPrompt.jsx';
+import { apiFetch } from '../../../config/api.js';
 
 // Welcomes returning visitors and checks if their number is registered
 export default function RegisterPg({ onSelectFlow, onUserFound }) {
@@ -18,8 +19,8 @@ export default function RegisterPg({ onSelectFlow, onUserFound }) {
     setError(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/visitors/search?phone=${encodeURIComponent(cleanLN)}`);
-      const data = await response.json();
+      const response = await apiFetch(`/api/visitors/search?phone=${encodeURIComponent(cleanLN)}`);
+      const data = await response.json().catch(() => ({}));
 
       if (response.status === 404) {
         throw new Error('This number is not registered. Please register as a New Visitor below.');

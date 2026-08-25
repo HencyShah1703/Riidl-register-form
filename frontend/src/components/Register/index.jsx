@@ -3,6 +3,7 @@ import RegisterPg from './RegisterPg/index.jsx';
 import VerfiyDetailsOfExistingUser from './VerfiyDetailsOfExistingUser/index.jsx';
 import NewVisitor from './NewVisitor/index.jsx';
 import AttendaceRecorded from './AttendaceRecorded/index.jsx';
+import { apiFetch } from '../../config/api.js';
 
 // Coordinates returning lookup, detailed verification, new visitor entry, and success state
 export default function Register({ currentPage, setCurrentPage }) {
@@ -95,7 +96,7 @@ export default function Register({ currentPage, setCurrentPage }) {
     setError(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/visitors/checkin`, {
+      const response = await apiFetch('/api/visitors/checkin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -103,7 +104,7 @@ export default function Register({ currentPage, setCurrentPage }) {
         body: JSON.stringify(formData)
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
         throw new Error(data.message || 'Something went wrong during check-in');

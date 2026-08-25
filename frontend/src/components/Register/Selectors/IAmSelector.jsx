@@ -53,15 +53,23 @@ export default function IAmSelector({ value, onChange, disabled, isPrefilled }) 
   const handleSearchChange = (e) => {
     const text = e.target.value;
     setSearchTerm(text);
-    if (text !== 'Other') {
-      setIsOther(false);
-    }
     setIsOpen(true);
     
-    // If user clears the input, clear in parent form too
-    if (!text) {
+    if (!text.trim()) {
+      setIsOther(false);
       onChange({ target: { name: 'iAm', value: '' } });
+      return;
     }
+
+    if (text === 'Other') {
+      setIsOther(true);
+      onChange({ target: { name: 'iAm', value: customValue || '' } });
+      return;
+    }
+
+    setIsOther(false);
+    const matched = ROLES.find((r) => r.toLowerCase() === text.trim().toLowerCase());
+    onChange({ target: { name: 'iAm', value: matched && matched !== 'Other' ? matched : text } });
   };
 
   const handleSelectOption = (option) => {

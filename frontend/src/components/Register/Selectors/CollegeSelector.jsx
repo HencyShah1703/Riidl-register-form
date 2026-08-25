@@ -95,15 +95,23 @@ export default function CollegeSelector({ value, onChange, disabled, isPrefilled
   const handleSearchChange = (e) => {
     const text = e.target.value;
     setSearchTerm(text);
-    if (text !== 'Other') {
-      setIsOther(false);
-    }
     setIsOpen(true);
     
-    // If user clears the input, clear in parent form too
-    if (!text) {
+    if (!text.trim()) {
+      setIsOther(false);
       onChange({ target: { name: 'collegeName', value: '' } });
+      return;
     }
+
+    if (text === 'Other') {
+      setIsOther(true);
+      onChange({ target: { name: 'collegeName', value: customValue || '' } });
+      return;
+    }
+
+    setIsOther(false);
+    const matched = colleges.find((c) => c.toLowerCase() === text.trim().toLowerCase());
+    onChange({ target: { name: 'collegeName', value: matched && matched !== 'Other' ? matched : text } });
   };
 
   const handleSelectOption = (option) => {
@@ -126,8 +134,8 @@ export default function CollegeSelector({ value, onChange, disabled, isPrefilled
   };
 
   const persistCustomCollege = () => {
-    const collegeName = customValue.trim();
-    if (collegeName && !colleges.includes(collegeName)) {
+    const collegeName = (isOther ? customValue : searchTerm).trim();
+    if (collegeName && collegeName !== 'Other' && !colleges.includes(collegeName)) {
       const updatedColleges = [...customColleges, collegeName];
       setCustomColleges(updatedColleges);
       localStorage.setItem(CUSTOM_COLLEGES_STORAGE_KEY, JSON.stringify(updatedColleges));

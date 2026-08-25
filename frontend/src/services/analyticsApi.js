@@ -1,4 +1,6 @@
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/analytics`;
+import { API_BASE_URL, apiFetch } from '../config/api.js';
+
+const API_BASE = `${API_BASE_URL}/api/analytics`;
 
 /**
  * Fetches dashboard analytics data from the backend.
@@ -15,8 +17,8 @@ export async function fetchDashboardData(adminEmail, { from, to, location } = {}
     ...(location && { location })
   });
 
-  const response = await fetch(`${API_BASE}/dashboard?${query.toString()}`);
-  const data = await response.json();
+  const response = await apiFetch(`${API_BASE}/dashboard?${query.toString()}`);
+  const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
     throw new Error(data.message || 'Failed to retrieve analytics dashboard data.');

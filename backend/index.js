@@ -1,18 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from './config/db.js';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import visitorRoutes from './routes/visitorRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
-import dns from 'dns';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
-// Load environment variables
-dotenv.config();
+import { getAirtableBase } from './services/airtableService.js';
 
-// Connect to Database
-connectDB();
+// Load environment variables
+const envPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '.env');
+dotenv.config({ path: envPath });
 
 const app = express();
 
@@ -41,6 +41,27 @@ app.use(express.json());
 app.use('/api/visitors', visitorRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
+// Root health check endpoint
+app.get('/api/health', async (req, res) => {
+  try {
+    const base = getAirtableBase();
+    const table = process.env.AIRTABLE_RECEPTION_DATA_TABLE || 'Reception-Data';
+    await base(table).select({ maxRecords: 1 }).firstPage();
+    res.status(200).json({ status: 'ok', database: 'Airtable', connected: true });
+  } catch (err) {
+    res.status(200).json({ 
+      status: 'warning', 
+      database: 'Airtable', 
+      connected: false, 
+      error: err.message,
+      hasAirtableToken: Boolean((process.env.AIRTABLE_API_KEY || '').trim()),
+      airtableBaseId: (process.env.AIRTABLE_BASE_ID || '').trim() ? `${(process.env.AIRTABLE_BASE_ID || '').trim().slice(0, 4)}...${(process.env.AIRTABLE_BASE_ID || '').trim().slice(-4)}` : '',
+      airtableTable: (process.env.AIRTABLE_RECEPTION_DATA_TABLE || 'Reception-Data').trim(),
+      hint: err.statusCode === 401 ? 'Please check your AIRTABLE_API_KEY in backend/.env' : undefined
+    });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -50,7 +71,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} with Airtable Reception-Data integration`);
 });

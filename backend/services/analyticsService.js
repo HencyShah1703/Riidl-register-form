@@ -1,6 +1,4 @@
-import mongoose from 'mongoose';
-import Attendance from '../model/Attendance.js';
-import Visitor from '../model/Visitor.js';
+import { getAllAttendancesForAnalytics } from './airtableService.js';
 import { getCanonicalPhoneKey } from '../utils/normalizePhone.js';
 import { getKolkataDayBounds, getKolkataPeriodBounds, formatKolkataDate } from '../utils/analyticsDateUtils.js';
 
@@ -8,71 +6,32 @@ import { getKolkataDayBounds, getKolkataPeriodBounds, formatKolkataDate } from '
  * Builds a Map of canonical phone key to earliest check-in details.
  * Useful for checking if a visitor is new or returning.
  * 
- * @param {Array<string>} activeVisitorIds 
- * @returns {Promise<Map<string, { timestamp: Date, purpose: string, college: string, iAm: string, location: string }>>}
+ * @param {Array<object>} attendances 
+ * @returns {Map<string, { timestamp: Date, purpose: string, college: string, iAm: string, location: string }>}
  */
-export async function buildFirstVisitsMap(activeVisitorIds) {
-  if (!activeVisitorIds || activeVisitorIds.length === 0) {
-    return new Map();
-  }
-
-  // Find all check-ins for the active visitors, sort them, and group them by visitor
-  const firstVisits = await Attendance.aggregate([
-    { $match: { visitor: { $in: activeVisitorIds.map(id => new mongoose.Types.ObjectId(id)) } } },
-    { $sort: { timestamp: 1 } },
-    {
-      $group: {
-        _id: '$visitor',
-        firstVisit: { $first: '$timestamp' },
-        firstPurpose: { $first: '$purposeOfVisit' },
-        firstLocation: { $first: '$location' }
-      }
-    },
-    {
-      $lookup: {
-        from: 'visitors',
-        localField: '_id',
-        foreignField: '_id',
-        as: 'visitorDetails'
-      }
-    },
-    { $unwind: '$visitorDetails' },
-    {
-      $project: {
-        visitorId: '$_id',
-        phoneNumber: '$visitorDetails.phoneNumber',
-        collegeName: '$visitorDetails.collegeName',
-        iAm: '$visitorDetails.iAm',
-        firstVisit: 1,
-        firstPurpose: 1,
-        firstLocation: 1
-      }
-    }
-  ]);
-
+export function buildFirstVisitsMap(attendances) {
   const canonicalMap = new Map();
 
-  firstVisits.forEach(fv => {
-    const key = getCanonicalPhoneKey(fv.phoneNumber);
-
+  attendances.forEach(a => {
+    if (!a.visitor || !a.visitor.phoneNumber) return;
+    const key = getCanonicalPhoneKey(a.visitor.phoneNumber);
     if (!canonicalMap.has(key)) {
       canonicalMap.set(key, {
-        timestamp: fv.firstVisit,
-        purpose: fv.firstPurpose,
-        college: fv.collegeName,
-        iAm: fv.iAm || 'Other',
-        location: fv.firstLocation
+        timestamp: a.timestamp,
+        purpose: a.purposeOfVisit,
+        college: a.visitor.collegeName,
+        iAm: a.visitor.iAm || 'Other',
+        location: a.location
       });
     } else {
-      // Keep the overall earliest visit across all visitor documents representing this phone key
       const existing = canonicalMap.get(key);
-      if (new Date(fv.firstVisit) < new Date(existing.timestamp)) {
+      if (a.timestamp < existing.timestamp) {
         canonicalMap.set(key, {
-          timestamp: fv.firstVisit,
-          purpose: fv.firstPurpose,
-          college: fv.collegeName,
-          iAm: fv.iAm || 'Other',
-          location: fv.firstLocation
+          timestamp: a.timestamp,
+          purpose: a.purposeOfVisit,
+          college: a.visitor.collegeName,
+          iAm: a.visitor.iAm || 'Other',
+          location: a.location
         });
       }
     }
@@ -100,8 +59,10 @@ export function getStatsForPeriod(attendances, start, end, location, firstVisits
 
   const periodPhones = new Set();
   filtered.forEach(a => {
-    const key = getCanonicalPhoneKey(a.visitor.phoneNumber);
-    periodPhones.add(key);
+    if (a.visitor && a.visitor.phoneNumber) {
+      const key = getCanonicalPhoneKey(a.visitor.phoneNumber);
+      periodPhones.add(key);
+    }
   });
 
   const totalVisits = filtered.length;
@@ -125,9 +86,9 @@ export function getStatsForPeriod(attendances, start, end, location, firstVisits
     newUsers,
     totalVisits,
     visitors,
-    newVisitors: newUsers, // alias for "new today" / "new in period"
+    newVisitors: newUsers,
     returningUsers,
-    returningVisitors: returningUsers // alias for "returning today" / "returning in period"
+    returningVisitors: returningUsers
   };
 }
 
@@ -229,7 +190,8 @@ function generateInsights(newUsers, activeStats, prevStats) {
  * Gets all dashboard analytics data.
  * 
  * @param {string|Date} [from] 
- * @param {string|Date} [to] 
+ * @param {string|Date} [fromDateStr] 
+ * @param {string|Date} [toDateStr] 
  * @param {string} [location] 
  * @returns {Promise<object>}
  */
@@ -253,29 +215,20 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
   const monthBounds = getKolkataPeriodBounds('month');
   const yearBounds = getKolkataPeriodBounds('year');
 
-  // Maximum query span is either the year bounds, today bounds, or custom range bounds
-  const queryStart = start < yearBounds.start ? start : yearBounds.start;
-  const queryEnd = end > todayBounds.end ? end : todayBounds.end;
+  // Fetch all attendances from Airtable
+  const validAttendances = await getAllAttendancesForAnalytics();
 
-  // 2. Fetch all attendances in query span and populate visitors
-  const attendances = await Attendance.find({
-    timestamp: { $gte: queryStart, $lte: queryEnd }
-  }).populate('visitor');
+  // Find first-ever check-ins for all active visitors in memory
+  const firstVisitsMap = buildFirstVisitsMap(validAttendances);
 
-  const validAttendances = attendances.filter(a => a.visitor);
-
-  // 3. Find first-ever check-ins for all active visitors in memory/db
-  const activeVisitorIds = [...new Set(validAttendances.map(a => a.visitor._id))];
-  const firstVisitsMap = await buildFirstVisitsMap(activeVisitorIds);
-
-  // 4. Calculate period stats
+  // Calculate period stats
   const activePeriodStats = getStatsForPeriod(validAttendances, start, end, location, firstVisitsMap);
   const todayStats = getStatsForPeriod(validAttendances, todayBounds.start, todayBounds.end, location, firstVisitsMap);
   const weekStats = getStatsForPeriod(validAttendances, weekBounds.start, weekBounds.end, location, firstVisitsMap);
   const monthStats = getStatsForPeriod(validAttendances, monthBounds.start, monthBounds.end, location, firstVisitsMap);
   const yearStats = getStatsForPeriod(validAttendances, yearBounds.start, yearBounds.end, location, firstVisitsMap);
 
-  // 5. Filter new users in active period
+  // Filter new users in active period
   const newUsersInPeriod = [];
   const activePeriodPhones = new Set();
 
@@ -286,7 +239,9 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
   });
 
   activeFiltered.forEach(a => {
-    activePeriodPhones.add(getCanonicalPhoneKey(a.visitor.phoneNumber));
+    if (a.visitor && a.visitor.phoneNumber) {
+      activePeriodPhones.add(getCanonicalPhoneKey(a.visitor.phoneNumber));
+    }
   });
 
   activePeriodPhones.forEach(key => {
@@ -302,7 +257,7 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
     }
   });
 
-  // 6. Build trend chart data
+  // Build trend chart data
   const diffMs = end.getTime() - start.getTime();
   const diffDays = Math.ceil(diffMs / (24 * 60 * 60 * 1000));
 
@@ -343,7 +298,7 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
     count: bucketMap.get(label)
   }));
 
-  // 7. Group demographics
+  // Group demographics
   const SOMAIYA_COLLEGES = new Set([
     'K J Somaiya School of Engineering',
     'K J Somaiya Institute of Management',
@@ -358,6 +313,7 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
     'Maya Somaiya School of Music and Performing Arts',
     'Somaiya Dhwani Chitram',
     'K J Somaiya Institute of Dharma Studies',
+    'Department of Library and Information Science',
     'K J Somaiya College of Nursing',
     'K J Somaiya Medical College and Research Centre',
     'K J Somaiya Institute of Physiotherapy',
@@ -439,12 +395,13 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
     .sort((a, b) => b.value - a.value);
   const visitorTypes = Object.entries(visitorTypeCounts).map(([name, value]) => ({ name, value }));
 
-  // 8. Period-over-period comparison stats
+  // Period-over-period comparison stats
   const duration = end.getTime() - start.getTime() + 1;
   const prevStart = new Date(start.getTime() - duration);
   const prevEnd = new Date(start.getTime() - 1);
   const previousPeriodStats = getStatsForPeriod(validAttendances, prevStart, prevEnd, location, firstVisitsMap);
-  // 9. Purpose Details & Custom groupings
+
+  // Purpose Details & Custom groupings
   const meetCounts = {};
   const internshipCounts = {};
   const externalCollegeCounts = {};
@@ -544,7 +501,7 @@ export async function getDashboardData(from, fromDateStr, toDateStr, location) {
   const uniqueInternshipVisitors = internshipPhones.size;
   const returningInternshipVisitors = Math.max(0, totalInternshipVisits - uniqueInternshipVisitors);
 
-  // 10. Generate Insights
+  // Generate Insights
   const insights = generateInsights(newUsersInPeriod, activePeriodStats, previousPeriodStats);
 
   return {
